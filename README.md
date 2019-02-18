@@ -11,6 +11,23 @@ Further information can be found at: http://wiki.ros.org/arni
 Also there are a few to tutorials which cover most basics: http://wiki.ros.org/arni/Tutorials
 
 
+## Installation
+```
+cd ~/catkin_ws/src
+git clone https://github.com/ROS-PSE/arni.git
+cd ..
+catkin_make
+```
+Dependencies:
+
+If ros-indigo-desktop-full is installed, most system dependencies should already be met.  
+Three additional Python packages are required, these can be easily installed using pip:  
+```
+pip install --user --upgrade psutil
+pip install --user pysensors
+pip install --user pyqtgraph
+```
+
 ## Note for ROS kinetic:
 pyqtgraph has to be installed manually for this package to work correctly (don't ask me why):
 ```bash
