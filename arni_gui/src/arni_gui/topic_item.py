@@ -393,14 +393,18 @@ class TopicItem(AbstractItem):
         data_dict["state"] = self.get_state()
 
         try:
+            if type(data_dict["window_stop"]) == type(1):
+                data_dict["window_stop"] = Time(data_dict["window_stop"])
             if data_dict["window_stop"] == Time(0):
                 return "No data yet"
             elif (Time.now() - data_dict["window_stop"]) > Duration(MAXIMUM_OFFLINE_TIME):
                 # last entry was more than MAXIMUM_OFFLINE_TIME ago, it could be offline!
+                print("test 2")
                 return "No data since " + prepare_number_for_representation(Time.now() - data_dict["window_stop"]) \
                        + " seconds"
-        except:
+        except Exception as e:
             print(data_dict["window_stop"])
+            print(e)
             raise UserWarning
 
 
