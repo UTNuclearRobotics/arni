@@ -4,7 +4,7 @@ import rospy
 from python_qt_binding.QtCore import QTranslator
 
 from abstract_item import AbstractItem
-from helper_functions import prepare_number_for_representation, UPDATE_FREQUENCY, TOPIC_AGGREGATION_FREQUENCY, \
+from helper_functions import prepare_number_for_representation, change_number_exp, UPDATE_FREQUENCY, TOPIC_AGGREGATION_FREQUENCY, \
     ROUND_DIGITS, MAXIMUM_OFFLINE_TIME
 from arni_core.helper import SEUID, SEUID_DELIMITER
 from node_item import NodeItem
@@ -346,7 +346,7 @@ class TopicItem(AbstractItem):
         if "frequency" in self._attributes:
             content += self.tr("frequency") + ": " + prepare_number_for_representation(data_dict["frequency"]) \
                    + " " + self.tr("frequency_unit") + " <br>"
-        content += self.tr("bandwidth") + ": " + prepare_number_for_representation(data_dict["bandwidth"]) \
+        content += self.tr("bandwidth") + ": " + prepare_number_for_representation(change_number_exp(0, 6, data_dict["bandwidth"])) \
                    + " " + self.tr("bandwidth_unit") + " <br>"
 
         content += self.tr("dropped_msgs") + ": " + prepare_number_for_representation(data_dict["dropped_msgs"]) \
