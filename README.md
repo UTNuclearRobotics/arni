@@ -16,7 +16,7 @@ Also there are a few to tutorials which cover most basics: http://wiki.ros.org/a
 cd ~/catkin_ws/src
 git clone https://github.com/ROS-PSE/arni.git
 cd ..
-catkin_make
+catkin build arni
 ```
 Dependencies:
 
