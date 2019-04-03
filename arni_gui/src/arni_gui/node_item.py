@@ -12,6 +12,8 @@ import arni_core.helper as helper
 from arni_msgs.srv import NodeReaction
 from helper_functions import prepare_number_for_representation, MAXIMUM_OFFLINE_TIME, ROUND_DIGITS
 
+TIME_OUT = 25
+
 
 class NodeItem(AbstractItem):
     """
@@ -187,6 +189,18 @@ class NodeItem(AbstractItem):
                                  "node_bandwidth_max", "node_write_mean", "node_write_stddev", "node_write_max",
                                  "node_read_mean",
                                  "node_read_stddev", "node_read_max"]
+
+    ## CARSON ADDED
+    def timed_out(self):
+        data_dict = self.get_latest_data()
+
+        if data_dict["window_stop"] == Time(0):
+            return False
+        elif (Time.now() - data_dict["window_stop"]) > Duration(TIME_OUT):
+            # last entry was more than MAXIMUM_OFFLINE_TIME ago, it could be offline!
+            return True
+        return False
+    ##
 
     def get_short_data(self):
         """

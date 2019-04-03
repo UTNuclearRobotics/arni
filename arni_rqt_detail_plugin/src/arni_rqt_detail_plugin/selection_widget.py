@@ -7,7 +7,7 @@ import rospy
 import rospkg
 
 from python_qt_binding import loadUi
-from python_qt_binding.QtGui import QWidget, QPixmap
+from python_qt_binding.QtGui import QWidget, QPixmap, QButtonGroup
 from python_qt_binding.QtCore import QObject, Qt
 
 from rospy.rostime import Time, Duration
@@ -106,7 +106,20 @@ class SelectionWidget(QWidget):
         self.restart_push_button.setText(self.tr("Restart Node"))
         self.stop_push_button.setEnabled(False)
         self.restart_push_button.setEnabled(False)
-
+        
+        ## CARSON ADDED
+        self.throttle_rate_slider.setFocusPolicy(Qt.StrongFocus)
+        self.throttle_rate_slider.setValue(5) 
+        
+        self.throttle_window_slider.setFocusPolicy(Qt.StrongFocus)
+        self.throttle_window_slider.setValue(5)
+        
+        self.testGroup = QButtonGroup()
+        self.testGroup.addButton(self.throttle_message_radio)
+        self.testGroup.addButton(self.throttle_bandwidth_radio)
+        self.testGroup.buttonClicked.connect(self.__on_type_button_clicked)
+        ##
+        
         self.selected_label.setText(self.tr("Selected") + ":")
         self.range_label.setText(self.tr("Range") + ":")
         
@@ -166,6 +179,23 @@ class SelectionWidget(QWidget):
         self.pause_button.clicked.connect(self.__on_pause_button_clicked)
         # selected combo box
         self.selected_combo_box.currentIndexChanged.connect(self.__on_selected_combo_box_index_changed)
+        
+        ## CARSON ADDED
+        self.throttle_rate_slider.valueChanged.connect(self.__on_throttle_rate_slider_changed)
+        self.throttle_rate.textEdited.connect(self.__on_throttle_rate_changed)
+        ##
+        
+    ## CARSON ADDED
+    def __on_throttle_rate_slider_changed(self, value):
+        self.throttle_rate.setText(str(value))
+    
+    def __on_throttle_rate_changed(self, text):
+        if text != '':
+            self.throttle_rate_slider.setValue(int(text))
+
+    def __on_type_button_clicked(self, button):
+        print('test')
+    ##
 
     def create_graphs(self):
         """
@@ -285,12 +315,24 @@ class SelectionWidget(QWidget):
                 self.__plotable_items = self.__selected_item.get_plotable_items()
                 for key in self.__selected_item.get_list_items():
                     self.__plotable_items.remove(key)
+                # check if actions can be executed
                 if self.__selected_item.can_execute_actions():
                     self.stop_push_button.setEnabled(True)
                     self.restart_push_button.setEnabled(True)
                 else:
                     self.stop_push_button.setEnabled(False)
                     self.restart_push_button.setEnabled(False)
+                # check if throttles can be executed
+                if self.__selected_item.can_execute_throttles():
+                    self.throttle_rate_slider.setEnabled(True)
+                    self.throttle_window_slider.setEnabled(True)
+                    self.throttle_clear_button.setEnabled(True)
+                    self.throttle_submit_button.setEnabled(True)
+                else:
+                    self.throttle_rate_slider.setEnabled(False)
+                    self.throttle_window_slider.setEnabled(False)
+                    self.throttle_clear_button.setEnabled(False)
+                    self.throttle_submit_button.setEnabled(False)
                 self.__selected_item_changed = True
             self.__update_graphs_lock.release()
             self.update()

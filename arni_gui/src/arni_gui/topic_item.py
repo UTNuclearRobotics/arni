@@ -430,6 +430,11 @@ class TopicItem(AbstractItem):
         :return: False
         """
         return False
+    
+    ## CARSON ADDED 
+    def can_execute_throttles(self):
+        return True
+    ##
 
 
     def get_list_items(self):

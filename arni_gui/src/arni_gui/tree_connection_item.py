@@ -154,6 +154,11 @@ class TreeConnectionItem(QObject):
 
     def can_execute_actions(self):
         return False
+    
+    ## CARSON ADDED
+    def can_execute_throttles(self):
+        return True
+    ##
 
     def column_count(self):
         """

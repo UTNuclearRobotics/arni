@@ -324,6 +324,11 @@ class TreeTopicItem(QObject):
 
     def can_execute_actions(self):
         return False
+    
+    ## CARSON ADDED
+    def can_execute_throttles(self):
+        return True
+    ##
 
     def get_rated_items_older_than(self, time):
         """

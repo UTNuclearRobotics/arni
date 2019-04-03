@@ -415,9 +415,21 @@ class ROSModel(QAbstractItemModel):
                             if type(last_entry[key]) is not unicode:
                                 if last_entry[key] is not 0:
                                     data_dict[key] += last_entry[key]
+
                 for node_item in host_item.get_childs():
                     # nodeinfo
                     connected_nodes += 1
+                    
+                    ## CARSON ADDED
+                    
+                    if node_item.timed_out():
+                        print('refreshing...')
+                        # del host_item.get_childs()[i]
+                        host_item._child_items = []
+                        self.__identifier_dict = {"root": self.__root_item, host_item.seuid: host_item}
+                        break
+                    
+                    ##
 
                     if node_item.get_state() is "warning" and state is not "error":
                         state = "warning"
@@ -441,7 +453,7 @@ class ROSModel(QAbstractItemModel):
                                 state = "warning"
                             elif connection_item.get_state() is "error":
                                 state = "error"
-
+                                
             for key in data_dict:
                 if key != "state" and key != "cpu_temp_max" and key != "total_traffic" and key != "ram_usage_max" \
                         and self.__root_item.child_count():

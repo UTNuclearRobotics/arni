@@ -668,6 +668,11 @@ class AbstractItem(QObject):
         :return: False
         """
         return False
+        
+    ## CARSON ADDED
+    def can_execute_throttles(self):
+        return False
+    ##
 
     def get_short_data(self):
         return self.get_erroneous_entries_for_log()
