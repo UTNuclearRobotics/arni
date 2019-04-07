@@ -334,7 +334,7 @@ p, li { white-space: pre-wrap; }
                       <item>
                         <widget class="QLabel" name="throttle_rate_label">
                           <property name="text">
-                            <string>Rate (Hz or Bytes/s)</string>
+                            <string>Rate (Hz)</string>
                           </property>
                           <property name="alignment">
                             <enum>Qt::AlignHCenter</enum>
@@ -357,6 +357,9 @@ p, li { white-space: pre-wrap; }
                               <property name="maximumWidth">
                                 <number>100</number>
                               </property>
+                              <property name="enabled">
+                                <bool>false</bool>
+                              </property>
                             </widget>
                           </item>
                         </layout>
@@ -370,10 +373,16 @@ p, li { white-space: pre-wrap; }
                             <enum>Qt::Horizontal</enum>
                           </property>
                           <property name="minimum">
-                            <number>0</number>
+                            <number>1</number>
                           </property>
                             <property name="maximum">
-                          <number>10</number>
+                          <number>10000</number>
+                          </property>
+                          <property name="tickInterval">
+                            <number>1000</number>
+                          </property>
+                          <property name="tickPosition">
+                            <enum>QSlider::TicksBelow</enum>
                           </property>
                         </widget>
                       </item>
@@ -395,13 +404,16 @@ p, li { white-space: pre-wrap; }
                           <item>
                             <widget class="QLineEdit" name="throttle_window">
                               <property name="maxLength">
-                                <number>5</number>
+                                <number>4</number>
                               </property>
                               <property name="alignment">
                                 <enum>Qt::AlignHCenter</enum>
                               </property>
                               <property name="maximumWidth">
                                 <number>100</number>
+                              </property>
+                              <property name="enabled">
+                                <bool>false</bool>
                               </property>
                             </widget>
                           </item>
@@ -416,10 +428,16 @@ p, li { white-space: pre-wrap; }
                             <enum>Qt::Horizontal</enum>
                           </property>
                           <property name="minimum">
-                            <number>0</number>
+                            <number>1</number>
                           </property>
                             <property name="maximum">
-                          <number>10</number>
+                          <number>1000</number>
+                          </property>
+                          <property name="tickInterval">
+                            <number>100</number>
+                          </property>
+                          <property name="tickPosition">
+                            <enum>QSlider::TicksBelow</enum>
                           </property>
                         </widget>
                       </item>

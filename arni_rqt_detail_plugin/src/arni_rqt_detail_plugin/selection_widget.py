@@ -7,8 +7,8 @@ import rospy
 import rospkg
 
 from python_qt_binding import loadUi
-from python_qt_binding.QtGui import QWidget, QPixmap, QButtonGroup
-from python_qt_binding.QtCore import QObject, Qt
+from python_qt_binding.QtGui import QWidget, QPixmap, QButtonGroup, QRegExpValidator, QSlider, QStyle
+from python_qt_binding.QtCore import QObject, Qt, QRegExp
 
 from rospy.rostime import Time, Duration
 from rospy.timer import Timer
@@ -18,13 +18,55 @@ from arni_gui.log_filter_proxy import LogFilterProxy
 from arni_gui.log_delegate import LogDelegate
 from arni_gui.helper_functions import ResizeableGraphicsLayoutWidget, DateAxis
 
-
 try:
     import pyqtgraph as pg
 except ImportError as e:
     print("An error occured trying to import pyqtgraph. Please install pyqtgraph via \"pip install pyqtgraph\".")
     raise
 
+### CARSON ADDED ###
+# dpi values to enable floating point values on throttle sliders
+THROTTLE_RATE_SLIDER_DPI = 10.0
+THROTTLE_WINDOW_SLIDER_DPI = 100.0
+    
+def convert_from_slider(val, dpi):
+    """Converts a value from the slider to its true value.
+    
+    Args:
+        val (int, float): value to convert
+        dpi (int, float): dpi to use for conversion
+    """
+    return val / float(dpi)
+
+def convert_to_slider(val, dpi):
+    """Converts a value to its respective slider value.
+    
+    Args:
+        val (int, float): value to convert
+        dpi (int, float): dpi to use for conversion
+    """
+    return val * float(dpi)
+
+# mousePressEvent and mouseMoveEvent are used to override the default QSlider 
+# mouse handling to allow for clicking onto desired values and tick mark snapping
+# found here: https://stackoverflow.com/a/29639127
+def mousePressEvent(self, ev):
+    """ Jump to click position """
+    absolute_value = QStyle.sliderValueFromPosition(self.minimum(), self.maximum(), ev.x(), self.width())
+    factor = int(math.log10(self.maximum()-self.minimum()+1) - 1)
+    absolute_value = int(round(absolute_value, -factor))
+    self.setValue(absolute_value)
+    
+def mouseMoveEvent(self, ev):
+    """ Jump to pointer position while moving """
+    absolute_value = QStyle.sliderValueFromPosition(self.minimum(), self.maximum(), ev.x(), self.width())
+    factor = int(math.log10(self.maximum()-self.minimum()+1) - 1)
+    absolute_value = int(round(absolute_value, -factor))
+    self.setValue(absolute_value)
+    
+QSlider.mousePressEvent = mousePressEvent
+QSlider.mouseMoveEvent = mouseMoveEvent
+### ###
 
 class SelectionWidget(QWidget):
     """
@@ -107,18 +149,26 @@ class SelectionWidget(QWidget):
         self.stop_push_button.setEnabled(False)
         self.restart_push_button.setEnabled(False)
         
-        ## CARSON ADDED
+        ### CARSON ADDED ###
+        # set default values for throttle rate and window sliders
         self.throttle_rate_slider.setFocusPolicy(Qt.StrongFocus)
-        self.throttle_rate_slider.setValue(5) 
-        
+        self.throttle_rate_slider.setValue(5000) 
         self.throttle_window_slider.setFocusPolicy(Qt.StrongFocus)
-        self.throttle_window_slider.setValue(5)
+        self.throttle_window_slider.setValue(500)
         
-        self.testGroup = QButtonGroup()
-        self.testGroup.addButton(self.throttle_message_radio)
-        self.testGroup.addButton(self.throttle_bandwidth_radio)
-        self.testGroup.buttonClicked.connect(self.__on_type_button_clicked)
-        ##
+        # set up validator for throttle rate and window text fields 
+        # only allows floating point numbers
+        regex = QRegExp(r'[0-9]*\.?[0-9]+')
+        validator = QRegExpValidator(regex)
+        self.throttle_rate.setValidator(validator)
+        self.throttle_window.setValidator(validator)
+        
+        # set up QButtonGroup for message/bandwidth throttle type radio buttons
+        self.throttle_radio_group = QButtonGroup()
+        self.throttle_radio_group.addButton(self.throttle_message_radio)
+        self.throttle_radio_group.addButton(self.throttle_bandwidth_radio)
+        self.throttle_radio_group.buttonClicked.connect(self.__on_type_button_clicked)
+        ### ###
         
         self.selected_label.setText(self.tr("Selected") + ":")
         self.range_label.setText(self.tr("Range") + ":")
@@ -180,21 +230,126 @@ class SelectionWidget(QWidget):
         # selected combo box
         self.selected_combo_box.currentIndexChanged.connect(self.__on_selected_combo_box_index_changed)
         
-        ## CARSON ADDED
+        ### CARSON ADDED ###
+        # connect sliders to text fields and update text fields for first time
         self.throttle_rate_slider.valueChanged.connect(self.__on_throttle_rate_slider_changed)
-        self.throttle_rate.textEdited.connect(self.__on_throttle_rate_changed)
-        ##
+        self.throttle_window_slider.valueChanged.connect(self.__on_throttle_window_slider_changed)
+        self.__on_throttle_rate_slider_changed(self.throttle_rate_slider.value())
+        self.__on_throttle_window_slider_changed(self.throttle_window_slider.value())
+        
+        # connect text fields to sliders
+        self.throttle_rate.editingFinished.connect(self.__on_throttle_rate_changed)
+        self.throttle_window.editingFinished.connect(self.__on_throttle_window_changed)
+        ### ###
         
     ## CARSON ADDED
     def __on_throttle_rate_slider_changed(self, value):
+        """Called whenever throttle rate slider changes value.
+        Updates the throttle rate text field to match the slider value.
+        Performs conversion if necessary.
+
+        Args:
+            value (int): new value of throttle rate slider
+        """
+        if self.throttle_radio_group.checkedButton() is self.throttle_message_radio:
+            value = convert_from_slider(value, THROTTLE_RATE_SLIDER_DPI)
         self.throttle_rate.setText(str(value))
     
-    def __on_throttle_rate_changed(self, text):
-        if text != '':
-            self.throttle_rate_slider.setValue(int(text))
+    def __on_throttle_rate_changed(self):
+        """Called whenever throttle rate text field emits the "finishedEditing" signal.
+        Updates the throttle rate slider to match the throttle rate text field, using
+        necessary conversions and checking for endpoints.
+        """
+        text = self.throttle_rate.text()
+        value = float(text)
+        if self.throttle_radio_group.checkedButton() is self.throttle_message_radio:
+            value = convert_to_slider(value, THROTTLE_RATE_SLIDER_DPI)
+        else:
+            value = int(value)
+        # check for endpoints
+        if value > self.throttle_rate_slider.maximum():
+            value = self.throttle_rate_slider.maximum()
+        if value < self.throttle_rate_slider.minimum():
+            value = self.throttle_rate_slider.minimum()
+        # call slider update method manually if value is same (keeps text field in sync)
+        if self.throttle_rate_slider.value() == value:
+            self.__on_throttle_rate_slider_changed(value)
+        self.throttle_rate_slider.setValue(value)
+        
+    def __on_throttle_window_slider_changed(self, value):
+        """Called whenever throttle window slider changes value.
+        Updates the throttle window text field to match the slider value
+        using the proper conversion.
+
+        Args:
+            value (int): new value of throttle window slider
+        """
+        self.throttle_window.setText(str(convert_from_slider(value, THROTTLE_WINDOW_SLIDER_DPI)))
+    
+    def __on_throttle_window_changed(self):
+        """Called whenever throttle window text field emits the "finishedEditing" signal.
+        Updates the throttle window slider to match the throttle window text field, using
+        necessary conversions and checking for endpoints.
+        """
+        text = self.throttle_window.text()
+        value = convert_to_slider(float(text), THROTTLE_WINDOW_SLIDER_DPI)
+        # check for endpoints
+        if value > self.throttle_window_slider.maximum():
+            value = self.throttle_window_slider.maximum()
+        if value < self.throttle_window_slider.minimum():
+            value = self.throttle_window_slider.minimum()
+        # call slider update method manually if value is same (keeps text field in sync)
+        if self.throttle_window_slider.value() == value:
+            self.__on_throttle_window_slider_changed(value)
+        self.throttle_window_slider.setValue(value)
 
     def __on_type_button_clicked(self, button):
-        print('test')
+        """Called whenever a throttle type radio button is clicked.
+        Performs the necessary GUI updates for the new throttle type.
+        
+        Args:
+            button (QRadioButton): currently checked radio button.
+        """
+        if button is self.throttle_message_radio:
+            self.throttle_rate_label.setText('Rate (Hz)')
+            self.__update_throttle_window_gui(False)
+            self.throttle_rate_slider.setMaximum(10000)    
+            self.throttle_rate_slider.setTickInterval(1000)    
+            self.throttle_rate.setMaxLength(5)
+            self.throttle_rate_slider.setValue(5000)
+        else:
+            self.throttle_rate_label.setText('Rate (Kb/s)')
+            self.__update_throttle_window_gui(True)
+            self.throttle_rate_slider.setMaximum(1e6)    
+            self.throttle_rate_slider.setTickInterval(1e5)    
+            self.throttle_rate.setMaxLength(7)
+            self.throttle_rate_slider.setValue(5e5)
+            
+    def __update_throttle_window_gui(self, mode):
+        """Updates the throttle window GUI components to the given mode.
+        
+        Args:
+            mode (bool): true if enabling throttle window GUI components, false if disabling
+        """
+        self.throttle_window_label.setEnabled(mode)
+        self.throttle_window_slider.setEnabled(mode)
+        self.throttle_window.setEnabled(mode)
+
+    def __update_throttle_gui(self, mode):
+        """Updates the throttle GUI to the given mode.
+        
+        Args:
+            mode (bool): true if enabling throttle GUI components, false if disabling
+        """
+        if self.throttle_radio_group.checkedButton() is self.throttle_bandwidth_radio:
+            self.__update_throttle_window_gui(mode)
+        self.throttle_rate_slider.setEnabled(mode)
+        self.throttle_clear_button.setEnabled(mode)
+        self.throttle_submit_button.setEnabled(mode)
+        self.throttle_rate_label.setEnabled(mode)
+        self.throttle_bandwidth_radio.setEnabled(mode)
+        self.throttle_message_radio.setEnabled(mode)
+        self.throttle_rate.setEnabled(mode)
     ##
 
     def create_graphs(self):
@@ -324,15 +479,9 @@ class SelectionWidget(QWidget):
                     self.restart_push_button.setEnabled(False)
                 # check if throttles can be executed
                 if self.__selected_item.can_execute_throttles():
-                    self.throttle_rate_slider.setEnabled(True)
-                    self.throttle_window_slider.setEnabled(True)
-                    self.throttle_clear_button.setEnabled(True)
-                    self.throttle_submit_button.setEnabled(True)
+                    self.__update_throttle_gui(True)
                 else:
-                    self.throttle_rate_slider.setEnabled(False)
-                    self.throttle_window_slider.setEnabled(False)
-                    self.throttle_clear_button.setEnabled(False)
-                    self.throttle_submit_button.setEnabled(False)
+                    self.__update_throttle_gui(False)
                 self.__selected_item_changed = True
             self.__update_graphs_lock.release()
             self.update()
