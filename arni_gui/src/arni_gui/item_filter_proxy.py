@@ -18,6 +18,11 @@ if sys.version_info[0] is 2 or (sys.version_info[0] is 3 and sys.version_info[1]
     from lru_cache import lru_cache
 else:
     from functools import lru_cache
+    
+
+### CARSON ADDED ###
+import re
+###
 
 
 class ItemFilterProxy(QSortFilterProxyModel):
@@ -41,6 +46,11 @@ class ItemFilterProxy(QSortFilterProxyModel):
         self.__show_topics = True
         self.__show_subscribers = True
         self.__hide_debug = True
+        
+        ### CARSON ADDED ###
+        self.__hide_throttle_nodes = True
+        self.__throttle_node_re = r'^[a-zA-Z](\w|/)*(_throttle_[0-9]+)$'
+        ### ###
 
         self.__filter_string = ""
 
@@ -119,6 +129,18 @@ class ItemFilterProxy(QSortFilterProxyModel):
             for entry in self.__quiet_names:
                 if entries[1].find(entry) is not -1:
                     return False
+                    
+        ### CARSON ADDED ###
+        if self.__hide_throttle_nodes:
+            m = re.match(self.__throttle_node_re, entries[1].split('/')[-1])
+            if m is not None:
+                return False
+            if source_parent.internalPointer() is not None:
+                parent_seuid = source_parent.internalPointer().seuid
+                m = re.match(self.__throttle_node_re, parent_seuid.split('/')[-1])
+                if m is not None:
+                    return False
+        ### ###
 
 
         # todo: speed this implementation a lot up by not using the model!!!

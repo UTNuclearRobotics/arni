@@ -244,7 +244,8 @@ class SelectionWidget(QWidget):
         self.throttle_window.editingFinished.connect(self.__on_throttle_window_changed)
         
         # connect buttons to actions
-        self.throttle_submit_button.clicked.connect(self.__on_throttle_submit_button_clicked)
+        self.throttle_start_button.clicked.connect(self.__on_throttle_start_button_clicked)
+        self.throttle_stop_button.clicked.connect(self.__on_throttle_stop_button_clicked)
         ### ###
         
     ### CARSON ADDED ###
@@ -330,22 +331,38 @@ class SelectionWidget(QWidget):
             self.throttle_rate.setMaxLength(7)
             self.throttle_rate_slider.setValue(5e5)
             
-    def __on_throttle_submit_button_clicked(self):
+    def __on_throttle_start_button_clicked(self):
+        """Called whenever the Start Throttle button is clicked.
+
+        Starts or updates the throttle as necessary according to which radio button
+        is active (message or bandwidth)
+        """
+        # grab topic name and inner topic item from selected_item
+        # this is necessary because only the TopicItem class has the new throttle attribute
         topic_name = self.__selected_item.seuid.split('/')[-1]
         topic_item = self.__selected_item.topic_item
+        # convert rate field to number 
         throttle_rate = float(self.throttle_rate.text())            
+        
+        # check if topic has an active throttle or not
         if topic_item.throttle is None:
             if self.throttle_radio_group.checkedButton() is self.throttle_message_radio:
                 topic_item.throttle = MessageThrottle(topic_name, topic_name + '_message_throttled', throttle_rate)
-                topic_item.throttle.start()
+                print(topic_item.throttle.start())
                 print('started message throttler')
             else:
+                # addtionally grab window value for a bandwidth throttle
                 throttle_window = float(self.throttle_window.text())
-                topic_item.throttle = BandwidthThrottle(topic_name, topic_name + '_bandwidth_throttled', throttle_rate, throttle_window)
+                topic_item.throttle = BandwidthThrottle(topic_name, topic_name + '_bandwidth_throttled', throttle_rate*1024, throttle_window)
+                print(topic_item.throttle.start())
+                print('started bandwidth throttler')
+            # enable stop button now that a throttle is active
+            self.throttle_stop_button.setEnabled(True)
         else:
             if self.throttle_radio_group.checkedButton() is self.throttle_message_radio:
                 if throttle_rate != topic_item.throttle.rate:
                     success = topic_item.throttle.update(rate=throttle_rate)
+                    print(success)
                     if success == None:
                         print('no running throttle')
                 else:
@@ -358,6 +375,15 @@ class SelectionWidget(QWidget):
                         print('no running throttle')
                 else:
                     print('no updates to throttle necessary')
+
+    def __on_throttle_stop_button_clicked(self):
+        """Called whenever the Stop Throttle button is clicked.
+        Stops the running throttle, resets the topic's throttle attribute, and disables
+        the Stop Throttle button.
+        """
+        print(self.__selected_item.topic_item.throttle.stop())
+        self.__selected_item.topic_item.throttle = None
+        self.throttle_stop_button.setEnabled(False)
 
     def __update_throttle_window_gui(self, mode):
         """Updates the throttle window GUI components to the given mode.
@@ -378,8 +404,14 @@ class SelectionWidget(QWidget):
         if self.throttle_radio_group.checkedButton() is self.throttle_bandwidth_radio:
             self.__update_throttle_window_gui(mode)
         self.throttle_rate_slider.setEnabled(mode)
-        self.throttle_clear_button.setEnabled(mode)
-        self.throttle_submit_button.setEnabled(mode)
+        if self.__selected_item.can_execute_throttles():
+            if self.__selected_item.topic_item.throttle is not None:
+                self.throttle_stop_button.setEnabled(True)
+            else:
+                self.throttle_stop_button.setEnabled(False)
+        else:
+            self.throttle_stop_button.setEnabled(mode)
+        self.throttle_start_button.setEnabled(mode)
         self.throttle_rate_label.setEnabled(mode)
         self.throttle_bandwidth_radio.setEnabled(mode)
         self.throttle_message_radio.setEnabled(mode)
