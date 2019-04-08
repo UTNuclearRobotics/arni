@@ -69,6 +69,10 @@ class TopicItem(AbstractItem):
 
         self.tree_items = []
         self.__aggregation_window = rospy.get_param("~aggregation_window", 5)
+        
+        ### CARSON ADDED ###o
+        self.throttle = None
+        ### ###
 
     def get_child(self, row, parent=None):
         """

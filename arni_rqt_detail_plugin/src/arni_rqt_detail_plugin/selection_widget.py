@@ -13,6 +13,8 @@ from python_qt_binding.QtCore import QObject, Qt, QRegExp
 from rospy.rostime import Time, Duration
 from rospy.timer import Timer
 
+from rosthrottle import MessageThrottle, BandwidthThrottle
+
 from arni_gui.ros_model import ROSModel
 from arni_gui.log_filter_proxy import LogFilterProxy
 from arni_gui.log_delegate import LogDelegate
@@ -240,9 +242,12 @@ class SelectionWidget(QWidget):
         # connect text fields to sliders
         self.throttle_rate.editingFinished.connect(self.__on_throttle_rate_changed)
         self.throttle_window.editingFinished.connect(self.__on_throttle_window_changed)
+        
+        # connect buttons to actions
+        self.throttle_submit_button.clicked.connect(self.__on_throttle_submit_button_clicked)
         ### ###
         
-    ## CARSON ADDED
+    ### CARSON ADDED ###
     def __on_throttle_rate_slider_changed(self, value):
         """Called whenever throttle rate slider changes value.
         Updates the throttle rate text field to match the slider value.
@@ -325,6 +330,35 @@ class SelectionWidget(QWidget):
             self.throttle_rate.setMaxLength(7)
             self.throttle_rate_slider.setValue(5e5)
             
+    def __on_throttle_submit_button_clicked(self):
+        topic_name = self.__selected_item.seuid.split('/')[-1]
+        topic_item = self.__selected_item.topic_item
+        throttle_rate = float(self.throttle_rate.text())            
+        if topic_item.throttle is None:
+            if self.throttle_radio_group.checkedButton() is self.throttle_message_radio:
+                topic_item.throttle = MessageThrottle(topic_name, topic_name + '_message_throttled', throttle_rate)
+                topic_item.throttle.start()
+                print('started message throttler')
+            else:
+                throttle_window = float(self.throttle_window.text())
+                topic_item.throttle = BandwidthThrottle(topic_name, topic_name + '_bandwidth_throttled', throttle_rate, throttle_window)
+        else:
+            if self.throttle_radio_group.checkedButton() is self.throttle_message_radio:
+                if throttle_rate != topic_item.throttle.rate:
+                    success = topic_item.throttle.update(rate=throttle_rate)
+                    if success == None:
+                        print('no running throttle')
+                else:
+                    print('no updates to throttle necessary')
+            else:
+                throttle_window = float(self.throttle_window.text())
+                if throttle_rate != topic_item.throttle.bandwidth or throttle_window != topic_item.throttle.window:
+                    success = topic_item.throttle.update(bandwidth=throttle_rate, window=throttle_window)
+                    if success == None:
+                        print('no running throttle')
+                else:
+                    print('no updates to throttle necessary')
+
     def __update_throttle_window_gui(self, mode):
         """Updates the throttle window GUI components to the given mode.
         
@@ -350,7 +384,7 @@ class SelectionWidget(QWidget):
         self.throttle_bandwidth_radio.setEnabled(mode)
         self.throttle_message_radio.setEnabled(mode)
         self.throttle_rate.setEnabled(mode)
-    ##
+    ### ###
 
     def create_graphs(self):
         """

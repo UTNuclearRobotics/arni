@@ -424,7 +424,6 @@ class ROSModel(QAbstractItemModel):
                     
                     if node_item.timed_out():
                         print('refreshing...')
-                        # del host_item.get_childs()[i]
                         host_item._child_items = []
                         self.__identifier_dict = {"root": self.__root_item, host_item.seuid: host_item}
                         break

@@ -355,7 +355,7 @@ p, li { white-space: pre-wrap; }
                                 <enum>Qt::AlignHCenter</enum>
                               </property>
                               <property name="maximumWidth">
-                                <number>100</number>
+                                <number>150</number>
                               </property>
                               <property name="enabled">
                                 <bool>false</bool>
