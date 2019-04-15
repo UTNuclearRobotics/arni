@@ -185,6 +185,8 @@ def topic_statistics_state_to_string(element, state):
             return "unknown"
     raise TypeError("the state of the element is None or not known")
     
+## CARSON ADDED
 def change_number_exp(old_exp, new_exp, number):
     exponent = old_exp - new_exp
     return number*10**exponent
+##
