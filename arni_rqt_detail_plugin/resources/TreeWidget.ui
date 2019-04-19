@@ -1,226 +1,226 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>tree_widget</class>
- <widget class="QWidget" name="tree_widget">
-  <property name="geometry">
-   <rect>
-    <x>0</x>
-    <y>0</y>
-    <width>920</width>
-    <height>317</height>
-   </rect>
-  </property>
-  <property name="windowTitle">
-   <string>ArniGui-Detail</string>
-  </property>
-  <layout class="QHBoxLayout" name="horizontalLayout_2">
-   <item>
-    <widget class="QSplitter" name="splitter">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="orientation">
-      <enum>Qt::Vertical</enum>
-     </property>
-     <widget class="QWidget" name="layoutWidget">
-      <layout class="QVBoxLayout" name="widget_vertical_layout">
-       <item>
-        <layout class="QHBoxLayout" name="filter_horizontal_layout">
-         <item>
-          <widget class="QLabel" name="filter_label">
-           <property name="text">
-            <string>Filter:</string>
-           </property>
+  <class>tree_widget</class>
+  <widget class="QWidget" name="tree_widget">
+    <property name="geometry">
+      <rect>
+        <x>0</x>
+        <y>0</y>
+        <width>920</width>
+        <height>317</height>
+      </rect>
+    </property>
+    <property name="windowTitle">
+      <string>ArniGui-Detail</string>
+    </property>
+    <layout class="QHBoxLayout" name="horizontalLayout_2">
+      <item>
+        <widget class="QSplitter" name="splitter">
+          <property name="sizePolicy">
+            <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+            </sizepolicy>
+          </property>
+          <property name="orientation">
+            <enum>Qt::Vertical</enum>
+          </property>
+          <widget class="QWidget" name="layoutWidget">
+            <layout class="QVBoxLayout" name="widget_vertical_layout">
+              <item>
+                <layout class="QHBoxLayout" name="filter_horizontal_layout">
+                  <item>
+                    <widget class="QLabel" name="filter_label">
+                      <property name="text">
+                        <string>Filter:</string>
+                      </property>
+                    </widget>
+                  </item>
+                  <item>
+                    <widget class="QLineEdit" name="filter_line_Edit">
+                      <property name="text">
+                        <string/>
+                      </property>
+                      <property name="placeholderText">
+                        <string>Filter by item</string>
+                      </property>
+                    </widget>
+                  </item>
+                  <item>
+                    <widget class="QPushButton" name="apply_push_button">
+                      <property name="text">
+                        <string>Apply</string>
+                      </property>
+                    </widget>
+                  </item>
+                </layout>
+              </item>
+              <item>
+                <layout class="QHBoxLayout" name="horizontal_layout">
+                  <item>
+                    <widget class="QCheckBox" name="show_nodes_check_box">
+                      <property name="text">
+                        <string>Show Nodes</string>
+                      </property>
+                      <property name="checked">
+                        <bool>true</bool>
+                      </property>
+                    </widget>
+                  </item>
+                  <item>
+                    <widget class="QCheckBox" name="show_topics_check_box">
+                      <property name="text">
+                        <string>Show Topics</string>
+                      </property>
+                    </widget>
+                  </item>
+                  <item>
+                    <widget class="QCheckBox" name="show_connections_check_box">
+                      <property name="text">
+                        <string>Show Connections</string>
+                      </property>
+                    </widget>
+                  </item>
+                  <item>
+                    <widget class="QCheckBox" name="also_show_subscribers_check_box">
+                      <property name="text">
+                        <string>Also show Subscribers</string>
+                      </property>
+                    </widget>
+                  </item>
+                  <item>
+                    <widget class="QCheckBox" name="show_erroneous_check_box">
+                      <property name="text">
+                        <string>Only erroneous</string>
+                      </property>
+                    </widget>
+                  </item>
+                  <item>
+                    <widget class="QCheckBox" name="hide_debug_check_box">
+                      <property name="enabled">
+                        <bool>true</bool>
+                      </property>
+                      <property name="text">
+                        <string>Hide Debug</string>
+                      </property>
+                      <property name="checked">
+                        <bool>true</bool>
+                      </property>
+                    </widget>
+                  </item>
+                  <item>
+                    <widget class="QCheckBox" name="hide_throttles_check_box">
+                      <property name="text">
+                        <string>Hide Throttles</string>
+                      </property>
+                      <property name="checked">
+                        <bool>true</bool>
+                      </property>
+                    </widget>
+                  </item>
+                  <item>
+                    <spacer name="horizontalSpacer">
+                      <property name="orientation">
+                        <enum>Qt::Horizontal</enum>
+                      </property>
+                      <property name="sizeType">
+                        <enum>QSizePolicy::Minimum</enum>
+                      </property>
+                      <property name="sizeHint" stdset="0">
+                        <size>
+                          <width>0</width>
+                          <height>0</height>
+                        </size>
+                      </property>
+                    </spacer>
+                  </item>
+                  <item>
+                    <widget class="QPushButton" name="plus_push_button">
+                      <property name="text">
+                        <string/>
+                      </property>
+                      <property name="icon">
+                        <iconset>
+                          <normaloff>graphics/plus.png</normaloff>graphics/plus.png</iconset>
+                      </property>
+                    </widget>
+                  </item>
+                  <item>
+                    <widget class="QPushButton" name="minus_push_button">
+                      <property name="text">
+                        <string/>
+                      </property>
+                      <property name="icon">
+                        <iconset>
+                          <normaloff>graphics/minus.png</normaloff>graphics/minus.png</iconset>
+                      </property>
+                    </widget>
+                  </item>
+                  <item>
+                    <widget class="QPushButton" name="expand_push_button">
+                      <property name="text">
+                        <string/>
+                      </property>
+                      <property name="icon">
+                        <iconset>
+                          <normaloff>graphics/expand.png</normaloff>graphics/expand.png</iconset>
+                      </property>
+                    </widget>
+                  </item>
+                </layout>
+              </item>
+              <item>
+                <widget class="QTreeView" name="item_tree_view">
+                  <property name="sizePolicy">
+                    <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                    </sizepolicy>
+                  </property>
+                </widget>
+              </item>
+            </layout>
           </widget>
-         </item>
-         <item>
-          <widget class="QLineEdit" name="filter_line_Edit">
-           <property name="text">
-            <string/>
-           </property>
-           <property name="placeholderText">
-            <string>Filter by item</string>
-           </property>
+          <widget class="QWidget" name="layoutWidget">
+            <layout class="QHBoxLayout" name="horizontalLayout">
+              <item>
+                <widget class="QPushButton" name="recording_push_button">
+                  <property name="sizePolicy">
+                    <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                    </sizepolicy>
+                  </property>
+                  <property name="minimumSize">
+                    <size>
+                      <width>20</width>
+                      <height>10</height>
+                    </size>
+                  </property>
+                  <property name="text">
+                    <string>Start Recording</string>
+                  </property>
+                </widget>
+              </item>
+              <item>
+                <widget class="QPushButton" name="load_config_push_button">
+                  <property name="minimumSize">
+                    <size>
+                      <width>20</width>
+                      <height>0</height>
+                    </size>
+                  </property>
+                  <property name="text">
+                    <string>Load config</string>
+                  </property>
+                </widget>
+              </item>
+            </layout>
           </widget>
-         </item>
-         <item>
-          <widget class="QPushButton" name="apply_push_button">
-           <property name="text">
-            <string>Apply</string>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </item>
-       <item>
-        <layout class="QHBoxLayout" name="horizontal_layout">
-         <item>
-          <widget class="QCheckBox" name="show_nodes_check_box">
-           <property name="text">
-            <string>Show Nodes</string>
-           </property>
-           <property name="checked">
-            <bool>true</bool>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QCheckBox" name="show_topics_check_box">
-           <property name="text">
-            <string>Show Topics</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QCheckBox" name="show_connections_check_box">
-           <property name="text">
-            <string>Show Connections</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QCheckBox" name="also_show_subscribers_check_box">
-           <property name="text">
-            <string>Also show Subscribers</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QCheckBox" name="show_erroneous_check_box">
-           <property name="text">
-            <string>Only erroneous</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QCheckBox" name="hide_debug_check_box">
-           <property name="enabled">
-            <bool>true</bool>
-           </property>
-           <property name="text">
-            <string>Hide Debug</string>
-           </property>
-           <property name="checked">
-            <bool>true</bool>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QCheckBox" name="hide_throttles_check_box">
-           <property name="text">
-            <string>Hide Throttles</string>
-           </property>
-           <property name="checked">
-            <bool>true</bool>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <spacer name="horizontalSpacer">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-           <property name="sizeType">
-            <enum>QSizePolicy::Minimum</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>0</width>
-             <height>0</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
-         <item>
-          <widget class="QPushButton" name="plus_push_button">
-           <property name="text">
-            <string/>
-           </property>
-           <property name="icon">
-            <iconset>
-             <normaloff>graphics/plus.png</normaloff>graphics/plus.png</iconset>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QPushButton" name="minus_push_button">
-           <property name="text">
-            <string/>
-           </property>
-           <property name="icon">
-            <iconset>
-             <normaloff>graphics/minus.png</normaloff>graphics/minus.png</iconset>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QPushButton" name="expand_push_button">
-           <property name="text">
-            <string/>
-           </property>
-           <property name="icon">
-            <iconset>
-             <normaloff>graphics/expand.png</normaloff>graphics/expand.png</iconset>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </item>
-       <item>
-        <widget class="QTreeView" name="item_tree_view">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
         </widget>
-       </item>
-      </layout>
-     </widget>
-     <widget class="QWidget" name="layoutWidget">
-      <layout class="QHBoxLayout" name="horizontalLayout">
-       <item>
-        <widget class="QPushButton" name="recording_push_button">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="minimumSize">
-          <size>
-           <width>20</width>
-           <height>10</height>
-          </size>
-         </property>
-         <property name="text">
-          <string>Start Recording</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QPushButton" name="load_config_push_button">
-         <property name="minimumSize">
-          <size>
-           <width>20</width>
-           <height>0</height>
-          </size>
-         </property>
-         <property name="text">
-          <string>Load config</string>
-         </property>
-        </widget>
-       </item>
-      </layout>
-     </widget>
-    </widget>
-   </item>
-  </layout>
- </widget>
- <resources/>
- <connections/>
+      </item>
+    </layout>
+  </widget>
+  <resources/>
+  <connections/>
 </ui>

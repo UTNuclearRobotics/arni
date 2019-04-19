@@ -171,6 +171,7 @@ class SelectionWidget(QWidget):
         self.throttle_radio_group.addButton(self.throttle_bandwidth_radio)
         self.throttle_radio_group.buttonClicked.connect(self.__on_type_button_clicked)
         
+        ### set up color palettes to indicate current throttle type
         self.active_label_palette = QPalette()
         self.active_label_palette.setColor(QPalette.Window, Qt.white)
         self.active_label_palette.setColor(QPalette.WindowText, Qt.green)
@@ -414,6 +415,10 @@ class SelectionWidget(QWidget):
         self.throttle_stop_button.setEnabled(False)
         
     def __on_throttle_reset_button_clicked(self):
+        """Called whenever the Reset Throttle button is clicked.
+        Resets the throttle parameters to current throttle values or defaults if no
+        throttle is running.
+        """
         throttle = self.__selected_item.topic_item.throttle
         if throttle is None or not self.typeButtonMatchesThrottleType(throttle):
             self.__on_type_button_clicked(self.throttle_radio_group.checkedButton())
@@ -425,6 +430,12 @@ class SelectionWidget(QWidget):
                 self.throttle_window_slider.setValue(convert_to_slider(throttle.window, THROTTLE_WINDOW_SLIDER_DPI))
 
     def typeButtonMatchesThrottleType(self, throttle):
+        """Determines if the active type radio button matches the type of the
+        provided throttle.
+
+        Args:
+            throttle (rosthrottle.MessageThrottle or rosthrottle.BandwidthThrottle): throttle to compare with
+        """
         message_match = self.throttle_radio_group.checkedButton() is self.throttle_message_radio and isinstance(throttle, MessageThrottle)
         bandwidth_match = self.throttle_radio_group.checkedButton() is self.throttle_bandwidth_radio and isinstance(throttle, BandwidthThrottle)
         return message_match or bandwidth_match
@@ -466,6 +477,12 @@ class SelectionWidget(QWidget):
         self.throttle_reset_button.setEnabled(mode)
         
     def __update_throttle_params(self, throttle=None):
+        """Updates the throttle parameters based on the given throttle.
+
+        Args:
+            throttle (optional, rosthrottle.MessageThrottle or rosthrottle.BandwidthThrottle): throttle
+                to use as source of throttle parameters. If not provided, default values are used.
+        """
         if throttle is None:
             self.throttle_message_radio.setChecked(True)
             self.__on_type_button_clicked(self.throttle_message_radio)
