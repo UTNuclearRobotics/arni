@@ -99,6 +99,9 @@ class TreeWidget(QWidget):
         """Connects the slots."""
         self.show_nodes_check_box.stateChanged.connect(self.__on_show_nodes_check_box_state_changed)
         self.hide_debug_check_box.stateChanged.connect(self.__on_hide_debug_check_box_state_changed)
+        ## CARSON ADDED
+        self.hide_throttles_check_box.stateChanged.connect(self.__on_hide_throttles_check_box_state_changed)
+        ##
         self.show_topics_check_box.stateChanged.connect(self.__on_show_topics_check_box_state_changed)
         self.show_connections_check_box.stateChanged.connect(self.__on_show_connections_check_box_state_changed)
         self.show_erroneous_check_box.stateChanged.connect(self.__on_show_erroneous_check_box_state_changed)
@@ -250,6 +253,14 @@ class TreeWidget(QWidget):
                 self.show_connections_check_box.click()
             if self.also_show_subscribers_check_box.checkState():
                 self.also_show_subscriber_check_box.click()
+
+    ## CARSON ADDED
+    def __on_hide_throttles_check_box_state_changed(self, activated):
+        if activated is 2:
+            self.__filter_proxy.hide_throttles(True)
+        else:
+            self.__filter_proxy.hide_throttles(False)
+    ##
 
     def __on_hide_debug_check_box_state_changed(self, activated):
         """

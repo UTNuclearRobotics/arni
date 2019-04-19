@@ -410,8 +410,8 @@ class TopicItem(AbstractItem):
             print(data_dict["window_stop"])
             print(e)
             raise UserWarning
-
-
+            
+            
         content = ""
         if data_dict["state"] is "error":
             content += self.get_erroneous_entries_for_log()

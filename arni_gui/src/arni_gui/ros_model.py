@@ -308,7 +308,6 @@ class ROSModel(QAbstractItemModel):
         """
         self.__model_lock.acquire()
         self.layoutAboutToBeChanged.emit()
-
         if self.__buffer_thread:
             rated_statistics, topic_statistics, host_statistics, node_statistics, master_api_data = \
                 self.__buffer_thread.get_state()
@@ -421,13 +420,15 @@ class ROSModel(QAbstractItemModel):
                     connected_nodes += 1
                     
                     ## CARSON ADDED
-                    
                     if node_item.timed_out():
-                        print('refreshing...')
-                        host_item._child_items = []
-                        self.__identifier_dict = {"root": self.__root_item, host_item.seuid: host_item}
+                        # probably a more efficient way to do this
+                        indices = []
+                        for i in range(len(host_item.get_childs())):
+                            if host_item.get_childs()[i] is node_item:
+                                indices.append(i)
+                        for i in indices:
+                            del host_item._child_items[i]
                         break
-                    
                     ##
 
                     if node_item.get_state() is "warning" and state is not "error":
