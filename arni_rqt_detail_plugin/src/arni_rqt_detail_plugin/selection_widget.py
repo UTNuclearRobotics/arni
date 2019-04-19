@@ -365,8 +365,11 @@ class SelectionWidget(QWidget):
         # convert rate field to number 
         throttle_rate = float(self.throttle_rate.text())            
         
-        # check if topic has an active throttle or not
-        if topic_item.throttle is None:
+        # determine if we need to make a new throttle or update an existing one
+        if topic_item.throttle is None or not self.typeButtonMatchesThrottleType(topic_item.throttle):
+            if topic_item.throttle is not None:
+                # stop existing throttle if there is one
+                print(topic_item.throttle.stop())
             if self.throttle_radio_group.checkedButton() is self.throttle_message_radio:
                 topic_item.throttle = MessageThrottle(topic_name, topic_name + '_message_throttled', throttle_rate)
                 # self.throttle_message_radio.setPalette(self.active_label_palette)
@@ -394,10 +397,12 @@ class SelectionWidget(QWidget):
                 throttle_window = float(self.throttle_window.text())
                 if throttle_rate != topic_item.throttle.bandwidth or throttle_window != topic_item.throttle.window:
                     success = topic_item.throttle.update(bandwidth=throttle_rate, window=throttle_window)
+                    print(success)
                     if success == None:
                         print('no running throttle')
                 else:
                     print('no updates to throttle necessary')
+                
 
     def __on_throttle_stop_button_clicked(self):
         """Called whenever the Stop Throttle button is clicked.
