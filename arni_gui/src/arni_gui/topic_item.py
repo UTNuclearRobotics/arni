@@ -14,6 +14,7 @@ from rospy.impl.tcpros_service import ServiceProxy
 from rospy.rostime import Duration
 from connection_item import ConnectionItem
 
+from rosthrottle import MessageThrottle
 
 import re
 
@@ -359,6 +360,23 @@ class TopicItem(AbstractItem):
                    + " " + self.tr("period_max_unit") + " <br>"
         content += self.tr("stamp_age_max") + ": " + prepare_number_for_representation(data_dict["stamp_age_max"]) \
                    + " " + self.tr("stamp_age_max_unit") + " <br>"
+                   
+        ## CARSON ADDED
+        if self.throttle is not None:
+            content += "<b>Active Throttle</b>"
+            content += "<ul>"
+            if isinstance(self.throttle, MessageThrottle):
+                content+= "<li>" + "Type: Message Throttle" + "</li>" 
+                content+= "<li>" + "Rate: " + prepare_number_for_representation(self.throttle.rate) + " Hz </li>"
+            else:
+                content+= "<li>" + "Type: Bandwidth Throttle" + "</li>" 
+                content+= "<li>" + "Bandwidth: " + prepare_number_for_representation(self.throttle.bandwidth) + " Bytes/s</li>"
+                content+= "<li>" + "Window: " + prepare_number_for_representation(self.throttle.window) + " s</li>"
+            content += "<li>" + "Publishing on: /%s"%(self.throttle.outtopic) + "</li>"
+            content += "</ul>"
+        else:
+            content += "No Active Throttles <br>" 
+        ##
 
         content += "</p>"
         return content

@@ -48,6 +48,12 @@ def convert_to_slider(val, dpi):
         dpi (int, float): dpi to use for conversion
     """
     return val * float(dpi)
+    
+def kb_to_bytes(val):
+    return val * 1000
+
+def bytes_to_kb(val):
+    return val / 1000
 
 # mousePressEvent and mouseMoveEvent are used to override the default QSlider 
 # mouse handling to allow for clicking onto desired values and tick mark snapping
@@ -381,7 +387,7 @@ class SelectionWidget(QWidget):
             else:
                 # addtionally grab window value for a bandwidth throttle
                 throttle_window = float(self.throttle_window.text())
-                topic_item.throttle = BandwidthThrottle(topic_name, topic_name + '_bandwidth_throttled', throttle_rate*1024, throttle_window)
+                topic_item.throttle = BandwidthThrottle(topic_name, topic_name + '_bandwidth_throttled', kb_to_bytes(throttle_rate), throttle_window)
                 # self.throttle_window_radio.setPalette(self.active_label_palette)
                 print(topic_item.throttle.start())
                 print('started bandwidth throttler')
@@ -428,7 +434,7 @@ class SelectionWidget(QWidget):
             if self.throttle_radio_group.checkedButton() is self.throttle_message_radio:
                 self.throttle_rate_slider.setValue(convert_to_slider(throttle.rate, THROTTLE_RATE_SLIDER_DPI))
             else:
-                self.throttle_rate_slider.setValue(int(throttle.bandwidth / 1024))
+                self.throttle_rate_slider.setValue(bytes_to_kb(throttle.bandwidth))
                 self.throttle_window_slider.setValue(convert_to_slider(throttle.window, THROTTLE_WINDOW_SLIDER_DPI))
 
     def typeButtonMatchesThrottleType(self, throttle):
@@ -497,7 +503,7 @@ class SelectionWidget(QWidget):
             else:
                 self.throttle_bandwidth_radio.setChecked(True)
                 self.__on_type_button_clicked(self.throttle_bandwidth_radio)
-                self.throttle_rate_slider.setValue(int(throttle.bandwidth/1024))
+                self.throttle_rate_slider.setValue(bytes_to_kb(throttle.bandwidth))
                 self.throttle_window_slider.setValue(convert_to_slider(throttle.window, THROTTLE_WINDOW_SLIDER_DPI))
     ### ###
 

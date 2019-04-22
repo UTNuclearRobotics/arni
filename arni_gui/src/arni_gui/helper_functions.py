@@ -121,6 +121,12 @@ def choose_brush(index):
         return QColor(255, 165, 0)
     elif index.data() == "error":
         return QColor(255, 0, 0)
+    ## CARSON ADDED
+    elif index.data()[:2] == 't!':
+        temp = index.model().mapToSource(index)
+        if temp.internalPointer().topic_item.throttle is not None:
+            return QColor(0, 255, 255)
+    ##
 
     return QColor(255, 255, 255)
 
