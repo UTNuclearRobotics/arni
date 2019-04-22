@@ -280,6 +280,8 @@ class SelectionWidget(QWidget):
         value = float(text)
         if self.throttle_radio_group.checkedButton() is self.throttle_message_radio:
             value = convert_to_slider(value, THROTTLE_RATE_SLIDER_DPI)
+            if value%1 != 0:
+                value = int(value)
         else:
             value = int(value)
         # check for endpoints
