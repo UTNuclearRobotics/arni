@@ -2,6 +2,7 @@ import os
 import sys
 import rospy
 import rospkg
+import subprocess
 
 from rospy.rostime import Time, Duration
 
@@ -93,6 +94,8 @@ class TreeWidget(QWidget):
         self.__marked_items_map = dict()
 
         self.__recording_running = False
+        self.__bagging_running = False
+        self.__bag_uid = 0
         self.loaded_specs = 0
 
     def connect_slots(self):
@@ -116,21 +119,22 @@ class TreeWidget(QWidget):
 
         self.load_config_push_button.clicked.connect(self.__on_load_config_push_button_clicked)
         self.recording_push_button.clicked.connect(self.__on_recording_push_button_clicked)
+        self.bagging_push_button.clicked.connect(self.__on_bagging_push_button_clicked)
 
     def __on_load_config_push_button_clicked(self):
         filename = QFileDialog.getOpenFileName(self)
 
-        output = os.system("rosparam load " + filename[0])
-        # original format line below:
-        # output = os.system("rosparam load " + filename[0] + " /arni/specifications/rqt_arni_loaded" + str(self.loaded_specs))
-        os.system("rosservice call /monitoring_node/reload_specifications")
-        print("If there just popped up an error message, please make sure the processing node is running / "
-              "running correctly.")
-        self.loaded_specs += 1
+        if filename[0] is not u"":
+            output = os.system("rosparam load " + filename[0])
+            # original format line below:
+            # output = os.system("rosparam load " + filename[0] + " /arni/specifications/rqt_arni_loaded" + str(self.loaded_specs))
+            os.system("rosservice call /monitoring_node/reload_specifications")
+            print("If there just popped up an error message, please make sure the processing node is running / "
+                "running correctly.")
+            self.loaded_specs += 1
 
     def __on_recording_push_button_clicked(self):
         storage = []
-
 
         if self.__recording_running:  # stop now
             self.recording_push_button.setText("Start recording")
@@ -202,6 +206,24 @@ class TreeWidget(QWidget):
                 self.start_time = Time.now()
 
                 self.__recording_running = True
+
+    def __on_bagging_push_button_clicked(self):
+
+        if self.__bagging_running:      # stop bagging
+            os.system("rosnode kill /bagtopic")
+            self.bagging_push_button.setText("Start Bagging")
+            self.__bagging_running = False
+
+        else:                           # start bagging
+            filename = QFileDialog.getOpenFileName(self)
+
+            if filename[0] is not u"":
+                os.system("rosbag record -a --output-name " + filename[0] + " __name:=bagtopic" + self.__bag_uid)
+                self.bagging_push_button.setText("Stop Bagging")
+                self.__bagging_running = True
+
+            else:
+                QMessageBox.warning(self, "Warning", "No output file selected. Please select a valid .bag file for recording.")
 
     def __contextual_menu(self, point):
         index = self.item_tree_view.indexAt(point)
