@@ -7,7 +7,7 @@ import rospy
 import rospkg
 
 from python_qt_binding import loadUi
-from python_qt_binding.QtGui import QWidget, QPixmap, QButtonGroup, QRegExpValidator, QSlider, QStyle, QPalette
+from python_qt_binding.QtGui import QWidget, QPixmap, QButtonGroup, QRegExpValidator, QSlider, QStyle
 from python_qt_binding.QtCore import QObject, Qt, QRegExp
 
 from rospy.rostime import Time, Duration
@@ -18,7 +18,7 @@ from rosthrottle import MessageThrottle, BandwidthThrottle
 from arni_gui.ros_model import ROSModel
 from arni_gui.log_filter_proxy import LogFilterProxy
 from arni_gui.log_delegate import LogDelegate
-from arni_gui.helper_functions import ResizeableGraphicsLayoutWidget, DateAxis
+from arni_gui.helper_functions import ResizeableGraphicsLayoutWidget, DateAxis, kb_to_bytes, bytes_to_kb
 
 try:
     import pyqtgraph as pg
@@ -49,12 +49,6 @@ def convert_to_slider(val, dpi):
     """
     return val * float(dpi)
     
-def kb_to_bytes(val):
-    return val * 1000
-
-def bytes_to_kb(val):
-    return val / 1000
-
 # mousePressEvent and mouseMoveEvent are used to override the default QSlider 
 # mouse handling to allow for clicking onto desired values and tick mark snapping
 # found here: https://stackoverflow.com/a/29639127
@@ -177,14 +171,6 @@ class SelectionWidget(QWidget):
         self.throttle_radio_group.addButton(self.throttle_bandwidth_radio)
         self.throttle_radio_group.buttonClicked.connect(self.__on_type_button_clicked)
         
-        ### set up color palettes to indicate current throttle type
-        self.active_label_palette = QPalette()
-        self.active_label_palette.setColor(QPalette.Window, Qt.white)
-        self.active_label_palette.setColor(QPalette.WindowText, Qt.green)
-        
-        self.inactive_label_palette = QPalette()
-        self.inactive_label_palette.setColor(QPalette.Window, Qt.white)
-        self.inactive_label_palette.setColor(QPalette.WindowText, Qt.white)
         ### ###
         
         self.selected_label.setText(self.tr("Selected") + ":")
