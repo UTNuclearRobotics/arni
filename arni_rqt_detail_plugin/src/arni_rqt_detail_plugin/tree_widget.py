@@ -120,7 +120,9 @@ class TreeWidget(QWidget):
     def __on_load_config_push_button_clicked(self):
         filename = QFileDialog.getOpenFileName(self)
 
-        output = os.system("rosparam load " + filename[0] + " /arni/specifications/rqt_arni_loaded" + str(self.loaded_specs))
+        output = os.system("rosparam load " + filename[0])
+        # original format line below:
+        # output = os.system("rosparam load " + filename[0] + " /arni/specifications/rqt_arni_loaded" + str(self.loaded_specs))
         os.system("rosservice call /monitoring_node/reload_specifications")
         print("If there just popped up an error message, please make sure the processing node is running / "
               "running correctly.")
