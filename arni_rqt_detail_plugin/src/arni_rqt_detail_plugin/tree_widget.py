@@ -95,7 +95,7 @@ class TreeWidget(QWidget):
 
         self.__recording_running = False
         self.__bagging_running = False
-        self.__bag_uid = 0
+        self.__bagging_process = None
         self.loaded_specs = 0
 
     def connect_slots(self):
@@ -209,8 +209,22 @@ class TreeWidget(QWidget):
 
     def __on_bagging_push_button_clicked(self):
 
+        """Callback for bagging push button
+
+        If bagging is not currently running, opens a file dialog and prompts the 
+        user to specify an output bagfile, then begins bagging all topics. If 
+        bagging is currently running, stops bagging.
+
+        Args: 
+            none
+
+        Returns:
+            none
+
+        """
+
         if self.__bagging_running:      # stop bagging
-            os.system("rosnode kill /bagtopic")
+            while os.system("rosnode kill /bag_all_topic"):
             self.bagging_push_button.setText("Start Bagging")
             self.__bagging_running = False
 
@@ -218,12 +232,12 @@ class TreeWidget(QWidget):
             filename = QFileDialog.getOpenFileName(self)
 
             if filename[0] is not u"":
-                os.system("rosbag record -a --output-name " + filename[0] + " __name:=bagtopic" + self.__bag_uid)
+                self.__bagging_process = subprocess.Popen("rosbag record -a --output-name " + filename[0] + " __name:=bag_all_topic")
                 self.bagging_push_button.setText("Stop Bagging")
                 self.__bagging_running = True
 
             else:
-                QMessageBox.warning(self, "Warning", "No output file selected. Please select a valid .bag file for recording.")
+                QMessageBox.warning(self, "Warning", "No output file selected. Please select a valid '.bag' file for recording.")
 
     def __contextual_menu(self, point):
         index = self.item_tree_view.indexAt(point)
