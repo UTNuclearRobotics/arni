@@ -167,43 +167,127 @@
                       <verstretch>0</verstretch>
                     </sizepolicy>
                   </property>
+                  <property name="minimumHeight">
+                    <number>600</number>
+                  </property>
                 </widget>
               </item>
             </layout>
           </widget>
           <widget class="QWidget" name="layoutWidget">
-            <layout class="QHBoxLayout" name="horizontalLayout">
+            <layout class="QVBoxLayout" name="horizontalLayout">
+              <property name="alignment">
+                <enum>Qt::AlignVCenter</enum>
+              </property>
               <item>
-                <widget class="QPushButton" name="recording_push_button">
-                  <property name="sizePolicy">
-                    <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-                      <horstretch>0</horstretch>
-                      <verstretch>0</verstretch>
-                    </sizepolicy>
-                  </property>
-                  <property name="minimumSize">
-                    <size>
-                      <width>20</width>
-                      <height>10</height>
-                    </size>
-                  </property>
-                  <property name="text">
-                    <string>Start Recording</string>
-                  </property>
-                </widget>
+                <layout class="QHBoxLayout" name="loading_layout">
+                  <item>
+                    <widget class="QPushButton" name="recording_push_button">
+                      <property name="sizePolicy">
+                        <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+                          <horstretch>0</horstretch>
+                          <verstretch>0</verstretch>
+                        </sizepolicy>
+                      </property>
+                      <property name="minimumSize">
+                        <size>
+                          <width>20</width>
+                          <height>10</height>
+                        </size>
+                      </property>
+                      <property name="text">
+                        <string>Start Recording</string>
+                      </property>
+                    </widget>
+                  </item>
+                  <item>
+                    <widget class="QPushButton" name="start_spec_button">
+                      <property name="sizePolicy">
+                        <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+                          <horstretch>0</horstretch>
+                          <verstretch>0</verstretch>
+                        </sizepolicy>
+                      </property>
+                      <property name="minimumSize">
+                        <size>
+                          <width>20</width>
+                          <height>10</height>
+                        </size>
+                      </property>
+                      <property name="text">
+                        <string>Start Specifications</string>
+                      </property>
+                    </widget>
+                  </item>
+                  <item>
+                    <widget class="QPushButton" name="start_counter_button">
+                      <property name="sizePolicy">
+                        <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+                          <horstretch>0</horstretch>
+                          <verstretch>0</verstretch>
+                        </sizepolicy>
+                      </property>
+                      <property name="minimumSize">
+                        <size>
+                          <width>20</width>
+                          <height>10</height>
+                        </size>
+                      </property>
+                      <property name="text">
+                        <string>Start Countermeasures</string>
+                      </property>
+                    </widget>
+                  </item>
+                </layout>
               </item>
               <item>
-                <widget class="QPushButton" name="load_config_push_button">
-                  <property name="minimumSize">
-                    <size>
-                      <width>20</width>
-                      <height>0</height>
-                    </size>
-                  </property>
-                  <property name="text">
-                    <string>Load config</string>
-                  </property>
-                </widget>
+                <layout class="QHBoxLayout" name="horizontalLayout">
+                  <item>
+                    <widget class="QPushButton" name="load_spec_push_button">
+                      <property name="minimumSize">
+                        <size>
+                          <width>20</width>
+                          <height>0</height>
+                        </size>
+                      </property>
+                      <property name="text">
+                        <string>Load Spec Config</string>
+                      </property>
+                    </widget>
+                  </item>
+                  <item>
+                    <widget class="QPushButton" name="load_counter_push_button">
+                      <property name="minimumSize">
+                        <size>
+                          <width>20</width>
+                          <height>0</height>
+                        </size>
+                      </property>
+                      <property name="text">
+                        <string>Load Counter Config</string>
+                      </property>
+                    </widget>
+                  </item>
+                  <item>
+                    <widget class="QPushButton" name="start_bag_recording">
+                      <property name="sizePolicy">
+                        <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+                          <horstretch>0</horstretch>
+                          <verstretch>0</verstretch>
+                        </sizepolicy>
+                      </property>
+                      <property name="minimumSize">
+                        <size>
+                          <width>20</width>
+                          <height>10</height>
+                        </size>
+                      </property>
+                      <property name="text">
+                        <string>Start Bag Recording</string>
+                      </property>
+                    </widget>
+                  </item>
+                </layout>
               </item>
             </layout>
           </widget>

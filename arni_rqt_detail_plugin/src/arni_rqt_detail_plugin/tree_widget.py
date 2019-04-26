@@ -114,19 +114,35 @@ class TreeWidget(QWidget):
 
         self.item_tree_view.customContextMenuRequested.connect(self.__contextual_menu)
 
-        self.load_config_push_button.clicked.connect(self.__on_load_config_push_button_clicked)
+        self.load_spec_push_button.clicked.connect(self.__on_load_spec_push_button_clicked)
         self.recording_push_button.clicked.connect(self.__on_recording_push_button_clicked)
+        
+        ### CARSON ADDED ###
+        self.load_counter_push_button.clicked.connect(self.__on_load_counter_push_button_clicked)
+        ### ###
 
-    def __on_load_config_push_button_clicked(self):
+    def __on_load_spec_push_button_clicked(self):
         filename = QFileDialog.getOpenFileName(self)
 
-        output = os.system("rosparam load " + filename[0])
-        # original format line below:
-        # output = os.system("rosparam load " + filename[0] + " /arni/specifications/rqt_arni_loaded" + str(self.loaded_specs))
-        os.system("rosservice call /monitoring_node/reload_specifications")
-        print("If there just popped up an error message, please make sure the processing node is running / "
-              "running correctly.")
-        self.loaded_specs += 1
+        if filename[0] != '':
+            output = os.system("rosparam load " + filename[0])
+            # original format line below:
+            # output = os.system("rosparam load " + filename[0] + " /arni/specifications/rqt_arni_loaded" + str(self.loaded_specs))
+            os.system("rosservice call /monitoring_node/reload_specifications")
+            print("If there just popped up an error message, please make sure the processing node is running / "
+                "running correctly.")
+            self.loaded_specs += 1
+        
+    ### CARSON ADDED ###
+    def __on_load_counter_push_button_clicked(self):
+        filename = QFileDialog.getOpenFileName(self)
+
+        if filename[0] != '':
+            output = os.system("rosparam load " + filename[0])
+            os.system("rosservice call /countermeasure/reload_constraints")
+            print("If there just popped up an error message, please make sure the processing node is running / "
+                "running correctly.")
+    ### ###
 
     def __on_recording_push_button_clicked(self):
         storage = []
