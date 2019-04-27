@@ -48,7 +48,7 @@ class ItemFilterProxy(QSortFilterProxyModel):
         self.__hide_debug = True
         
         ### CARSON ADDED ###
-        self.__hide_throttle_nodes = True
+        self.__hide_throttles = True
         self.__throttle_node_re = r'^[a-zA-Z](\w|/)*(_throttle_[0-9]+)$'
         ### ###
 
@@ -131,7 +131,7 @@ class ItemFilterProxy(QSortFilterProxyModel):
                     return False
                     
         ### CARSON ADDED ###
-        if self.__hide_throttle_nodes:
+        if self.__hide_throttles:
             m = re.match(self.__throttle_node_re, entries[1].split('/')[-1])
             if m is not None:
                 return False
@@ -190,6 +190,13 @@ class ItemFilterProxy(QSortFilterProxyModel):
         if self.__hide_debug is not hide_debug:
             self.__hide_debug = hide_debug
             self.invalidateFilter()
+    
+    ## CARSON ADDED
+    def hide_throttles(self, hide_throttes):
+        if self.__hide_throttles is not hide_throttes: 
+            self.__hide_throttles = hide_throttes
+            self.invalidateFilter()
+    ##
 
 
     def show_nodes(self, show_nodes):
@@ -231,7 +238,9 @@ class ItemFilterProxy(QSortFilterProxyModel):
         """
         self.__show_subscribers = show_subscribers
         self.invalidateFilter()
+    
 
     def set_filter_string(self, filter_string):
         self.invalidateFilter()
         self.__filter_string = filter_string
+

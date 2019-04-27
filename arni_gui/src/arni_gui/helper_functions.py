@@ -121,6 +121,12 @@ def choose_brush(index):
         return QColor(255, 165, 0)
     elif index.data() == "error":
         return QColor(255, 0, 0)
+    ## CARSON ADDED
+    elif index.data()[:2] == 't!':
+        temp = index.model().mapToSource(index)
+        if temp.internalPointer().topic_item.throttle is not None:
+            return QColor(0, 255, 255)
+    ##
 
     return QColor(255, 255, 255)
 
@@ -189,4 +195,20 @@ def topic_statistics_state_to_string(element, state):
 def change_number_exp(old_exp, new_exp, number):
     exponent = old_exp - new_exp
     return number*10**exponent
+    
+def kb_to_bytes(val):
+    """Converts a value in kilobytes to one in bytes.
+    
+    Args:
+        val (int): value in kilobytes
+    """
+    return val * 1000
+
+def bytes_to_kb(val):
+    """Converts a value in bytes to one in kilobytes.
+
+    Args:
+        val (int): value in bytes
+    """
+    return val / 1000
 ##

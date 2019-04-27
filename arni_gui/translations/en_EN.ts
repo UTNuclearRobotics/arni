@@ -149,7 +149,7 @@
     <message>
         <location filename="src/arni_gui/connection_item.py" line="97"/>
         <source>bandwidth_unit</source>
-        <translation>Bytes/s</translation>
+        <translation>KB/s</translation>
     </message>
 </context>
 <context>
@@ -1070,7 +1070,7 @@
     <message>
         <location filename="src/arni_gui/topic_item.py" line="282"/>
         <source>bandwidth_unit</source>
-        <translation>MB/s</translation>
+        <translation>KB/s</translation>
     </message>
     <message>
         <location filename="src/arni_gui/topic_item.py" line="283"/>

@@ -197,7 +197,7 @@ class NodeItem(AbstractItem):
         if data_dict["window_stop"] == Time(0):
             return False
         elif (Time.now() - data_dict["window_stop"]) > Duration(TIME_OUT):
-            # last entry was more than MAXIMUM_OFFLINE_TIME ago, it could be offline!
+            # last entry was more than TIME_OUT, so it's offline
             return True
         return False
     ##
