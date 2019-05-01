@@ -168,7 +168,7 @@
                     </sizepolicy>
                   </property>
                   <property name="minimumHeight">
-                    <number>600</number>
+                    <number>200</number>
                   </property>
                 </widget>
               </item>
@@ -201,7 +201,7 @@
                     </widget>
                   </item>
                   <item>
-                    <widget class="QPushButton" name="start_spec_button">
+                    <widget class="QPushButton" name="start_spec_push_button">
                       <property name="sizePolicy">
                         <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
                           <horstretch>0</horstretch>
@@ -220,7 +220,7 @@
                     </widget>
                   </item>
                   <item>
-                    <widget class="QPushButton" name="start_counter_button">
+                    <widget class="QPushButton" name="start_counter_push_button">
                       <property name="sizePolicy">
                         <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
                           <horstretch>0</horstretch>
