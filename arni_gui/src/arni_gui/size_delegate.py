@@ -7,6 +7,8 @@ from python_qt_binding.QtCore import QObject, QSize
 
 from helper_functions import choose_brush
 
+from arni_gui.tree_topic_item import TreeTopicItem
+
 class SizeDelegate(QStyledItemDelegate):
     """
     Makes it possible to change the background-color of a cell in the Model.

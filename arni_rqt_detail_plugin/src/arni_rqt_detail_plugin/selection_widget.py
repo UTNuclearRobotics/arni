@@ -7,7 +7,7 @@ import rospy
 import rospkg
 
 from python_qt_binding import loadUi
-from python_qt_binding.QtGui import QWidget, QPixmap, QButtonGroup, QRegExpValidator, QSlider, QStyle, QPalette
+from python_qt_binding.QtGui import QWidget, QPixmap, QButtonGroup, QRegExpValidator, QSlider, QStyle
 from python_qt_binding.QtCore import QObject, Qt, QRegExp
 
 from rospy.rostime import Time, Duration
@@ -18,7 +18,7 @@ from rosthrottle import MessageThrottle, BandwidthThrottle
 from arni_gui.ros_model import ROSModel
 from arni_gui.log_filter_proxy import LogFilterProxy
 from arni_gui.log_delegate import LogDelegate
-from arni_gui.helper_functions import ResizeableGraphicsLayoutWidget, DateAxis
+from arni_gui.helper_functions import ResizeableGraphicsLayoutWidget, DateAxis, kb_to_bytes, bytes_to_kb
 
 try:
     import pyqtgraph as pg
@@ -48,7 +48,7 @@ def convert_to_slider(val, dpi):
         dpi (int, float): dpi to use for conversion
     """
     return val * float(dpi)
-
+    
 # mousePressEvent and mouseMoveEvent are used to override the default QSlider 
 # mouse handling to allow for clicking onto desired values and tick mark snapping
 # found here: https://stackoverflow.com/a/29639127
@@ -171,13 +171,6 @@ class SelectionWidget(QWidget):
         self.throttle_radio_group.addButton(self.throttle_bandwidth_radio)
         self.throttle_radio_group.buttonClicked.connect(self.__on_type_button_clicked)
         
-        self.active_label_palette = QPalette()
-        self.active_label_palette.setColor(QPalette.Window, Qt.white)
-        self.active_label_palette.setColor(QPalette.WindowText, Qt.green)
-        
-        self.inactive_label_palette = QPalette()
-        self.inactive_label_palette.setColor(QPalette.Window, Qt.white)
-        self.inactive_label_palette.setColor(QPalette.WindowText, Qt.white)
         ### ###
         
         self.selected_label.setText(self.tr("Selected") + ":")
@@ -279,6 +272,8 @@ class SelectionWidget(QWidget):
         value = float(text)
         if self.throttle_radio_group.checkedButton() is self.throttle_message_radio:
             value = convert_to_slider(value, THROTTLE_RATE_SLIDER_DPI)
+            if value%1 != 0:
+                value = int(value)
         else:
             value = int(value)
         # check for endpoints
@@ -365,8 +360,11 @@ class SelectionWidget(QWidget):
         # convert rate field to number 
         throttle_rate = float(self.throttle_rate.text())            
         
-        # check if topic has an active throttle or not
-        if topic_item.throttle is None:
+        # determine if we need to make a new throttle or update an existing one
+        if topic_item.throttle is None or not self.typeButtonMatchesThrottleType(topic_item.throttle):
+            if topic_item.throttle is not None:
+                # stop existing throttle if there is one
+                print(topic_item.throttle.stop())
             if self.throttle_radio_group.checkedButton() is self.throttle_message_radio:
                 topic_item.throttle = MessageThrottle(topic_name, topic_name + '_message_throttled', throttle_rate)
                 # self.throttle_message_radio.setPalette(self.active_label_palette)
@@ -375,7 +373,7 @@ class SelectionWidget(QWidget):
             else:
                 # addtionally grab window value for a bandwidth throttle
                 throttle_window = float(self.throttle_window.text())
-                topic_item.throttle = BandwidthThrottle(topic_name, topic_name + '_bandwidth_throttled', throttle_rate*1024, throttle_window)
+                topic_item.throttle = BandwidthThrottle(topic_name, topic_name + '_bandwidth_throttled', kb_to_bytes(throttle_rate), throttle_window)
                 # self.throttle_window_radio.setPalette(self.active_label_palette)
                 print(topic_item.throttle.start())
                 print('started bandwidth throttler')
@@ -394,10 +392,12 @@ class SelectionWidget(QWidget):
                 throttle_window = float(self.throttle_window.text())
                 if throttle_rate != topic_item.throttle.bandwidth or throttle_window != topic_item.throttle.window:
                     success = topic_item.throttle.update(bandwidth=throttle_rate, window=throttle_window)
+                    print(success)
                     if success == None:
                         print('no running throttle')
                 else:
                     print('no updates to throttle necessary')
+                
 
     def __on_throttle_stop_button_clicked(self):
         """Called whenever the Stop Throttle button is clicked.
@@ -409,6 +409,10 @@ class SelectionWidget(QWidget):
         self.throttle_stop_button.setEnabled(False)
         
     def __on_throttle_reset_button_clicked(self):
+        """Called whenever the Reset Throttle button is clicked.
+        Resets the throttle parameters to current throttle values or defaults if no
+        throttle is running.
+        """
         throttle = self.__selected_item.topic_item.throttle
         if throttle is None or not self.typeButtonMatchesThrottleType(throttle):
             self.__on_type_button_clicked(self.throttle_radio_group.checkedButton())
@@ -416,10 +420,16 @@ class SelectionWidget(QWidget):
             if self.throttle_radio_group.checkedButton() is self.throttle_message_radio:
                 self.throttle_rate_slider.setValue(convert_to_slider(throttle.rate, THROTTLE_RATE_SLIDER_DPI))
             else:
-                self.throttle_rate_slider.setValue(int(throttle.bandwidth / 1024))
+                self.throttle_rate_slider.setValue(bytes_to_kb(throttle.bandwidth))
                 self.throttle_window_slider.setValue(convert_to_slider(throttle.window, THROTTLE_WINDOW_SLIDER_DPI))
 
     def typeButtonMatchesThrottleType(self, throttle):
+        """Determines if the active type radio button matches the type of the
+        provided throttle.
+
+        Args:
+            throttle (rosthrottle.MessageThrottle or rosthrottle.BandwidthThrottle): throttle to compare with
+        """
         message_match = self.throttle_radio_group.checkedButton() is self.throttle_message_radio and isinstance(throttle, MessageThrottle)
         bandwidth_match = self.throttle_radio_group.checkedButton() is self.throttle_bandwidth_radio and isinstance(throttle, BandwidthThrottle)
         return message_match or bandwidth_match
@@ -461,6 +471,12 @@ class SelectionWidget(QWidget):
         self.throttle_reset_button.setEnabled(mode)
         
     def __update_throttle_params(self, throttle=None):
+        """Updates the throttle parameters based on the given throttle.
+
+        Args:
+            throttle (optional, rosthrottle.MessageThrottle or rosthrottle.BandwidthThrottle): throttle
+                to use as source of throttle parameters. If not provided, default values are used.
+        """
         if throttle is None:
             self.throttle_message_radio.setChecked(True)
             self.__on_type_button_clicked(self.throttle_message_radio)
@@ -473,7 +489,7 @@ class SelectionWidget(QWidget):
             else:
                 self.throttle_bandwidth_radio.setChecked(True)
                 self.__on_type_button_clicked(self.throttle_bandwidth_radio)
-                self.throttle_rate_slider.setValue(int(throttle.bandwidth/1024))
+                self.throttle_rate_slider.setValue(bytes_to_kb(throttle.bandwidth))
                 self.throttle_window_slider.setValue(convert_to_slider(throttle.window, THROTTLE_WINDOW_SLIDER_DPI))
     ### ###
 
