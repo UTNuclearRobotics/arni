@@ -117,21 +117,38 @@ class TreeWidget(QWidget):
 
         self.item_tree_view.customContextMenuRequested.connect(self.__contextual_menu)
 
-        self.load_config_push_button.clicked.connect(self.__on_load_config_push_button_clicked)
+        self.load_spec_push_button.clicked.connect(self.__on_load_spec_push_button_clicked)
         self.recording_push_button.clicked.connect(self.__on_recording_push_button_clicked)
+        
+        ### CARSON ADDED ###
+        self.load_counter_push_button.clicked.connect(self.__on_load_counter_push_button_clicked)
+        ### ###
+
+        ### BAGGING CHANGES
         self.bagging_push_button.clicked.connect(self.__on_bagging_push_button_clicked)
 
-    def __on_load_config_push_button_clicked(self):
+    def __on_load_spec_push_button_clicked(self):
         filename = QFileDialog.getOpenFileName(self)
 
-        if filename[0] is not u"":
+        if filename[0] != '':
             output = os.system("rosparam load " + filename[0])
             # original format line below:
             # output = os.system("rosparam load " + filename[0] + " /arni/specifications/rqt_arni_loaded" + str(self.loaded_specs))
             os.system("rosservice call /monitoring_node/reload_specifications")
             print("If there just popped up an error message, please make sure the processing node is running / "
-                "running correctly.")
+                  "running correctly.")
             self.loaded_specs += 1
+        
+    ### CARSON ADDED ###
+    def __on_load_counter_push_button_clicked(self):
+        filename = QFileDialog.getOpenFileName(self)
+
+        if filename[0] != '':
+            output = os.system("rosparam load " + filename[0])
+            os.system("rosservice call /countermeasure/reload_constraints")
+            print("If there just popped up an error message, please make sure the processing node is running / "
+                "running correctly.")
+    ### ###
 
     def __on_recording_push_button_clicked(self):
         storage = []
@@ -224,7 +241,7 @@ class TreeWidget(QWidget):
         """
 
         if self.__bagging_running:      # stop bagging
-            while os.system("rosnode kill /bag_all_topic"):
+            os.system("rosnode kill /bag_all_topic")
             self.bagging_push_button.setText("Start Bagging")
             self.__bagging_running = False
 
