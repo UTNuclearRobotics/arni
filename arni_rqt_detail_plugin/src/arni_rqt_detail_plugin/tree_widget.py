@@ -143,10 +143,10 @@ class TreeWidget(QWidget):
         """Called whenever the Load Specification button is clicked.
         Opens a file picker, then loads that file into rosparams and forces a reload by the specification node.
         """
-        if self._spec_process is None:
-            QMessageBox.warning(self, "Warning", "The Specifications node is not running. Please start it before "
-                                    "loading specifications. Aborting.")
-            return
+        # if self._spec_process is None:
+        #     QMessageBox.warning(self, "Warning", "The Specifications node is not running. Please start it before "
+        #                             "loading specifications. Aborting.")
+        #     return
             
         filename = QFileDialog.getOpenFileName(self)
 
@@ -165,10 +165,10 @@ class TreeWidget(QWidget):
         """Called whenever the Load Countermeasure button is clicked.
         Opens a file picker, then loads that file into rosparams and forces a reload by the countermeasure node.
         """
-        if self._counter_process is None:
-            QMessageBox.warning(self, "Warning", "The Countermeasures node is not running. Please start it before "
-                                    "loading countermeasures. Aborting.")
-            return
+        # if self._counter_process is None:
+        #     QMessageBox.warning(self, "Warning", "The Countermeasures node is not running. Please start it before "
+        #                             "loading countermeasures. Aborting.")
+        #     return
         
         filename = QFileDialog.getOpenFileName(self)
 
@@ -185,14 +185,15 @@ class TreeWidget(QWidget):
         if self._spec_process is None:
             self._spec_process = subprocess.Popen(['rosrun', 'arni_processing', 'arni_processing'], 
                                                     stdout=open(os.devnull, 'wb'), stderr=open(os.devnull, 'wb'))
-            print(self._spec_process.pid)
+            # print(self._spec_process.pid)
             self.start_spec_push_button.setText('Stop Specifications')
+            self.load_spec_push_button.setEnabled(True)
         else:
             self._spec_process.send_signal(signal.SIGINT)
-            return_code = self._spec_process.wait()
+            self._spec_process.wait()
             self._spec_process = None
             self.start_spec_push_button.setText('Start Specifications')
-            print(return_code)
+            self.load_spec_push_button.setEnabled(False)
             
     def __on_start_counter_push_button_clicked(self):
         """Called whenever the Start/Stop Countermeasures button is clicked.
@@ -201,14 +202,15 @@ class TreeWidget(QWidget):
         if self._counter_process is None:
             self._counter_process = subprocess.Popen(['rosrun', 'arni_countermeasure', 'arni_countermeasure'], 
                                                         stdout=open(os.devnull, 'wb'), stderr=open(os.devnull, 'wb'))
-            print(self._counter_process.pid)
+            # print(self._counter_process.pid)
             self.start_counter_push_button.setText('Stop Countermeasures')
+            self.load_counter_push_button.setEnabled(True)
         else:
             self._counter_process.send_signal(signal.SIGINT)
-            return_code = self._counter_process.wait()
+            self._counter_process.wait()
             self._counter_process = None
             self.start_counter_push_button.setText('Start Countermeasures')
-            print(return_code)
+            self.load_counter_push_button.setEnabled(False)
         
     def _cleanup(self):
         """Cleans up the specifications and countermeasure processes on exit.
