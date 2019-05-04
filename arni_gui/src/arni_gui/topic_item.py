@@ -4,7 +4,7 @@ import rospy
 from python_qt_binding.QtCore import QTranslator
 
 from abstract_item import AbstractItem
-from helper_functions import prepare_number_for_representation, kb_to_bytes, bytes_to_kb, \
+from helper_functions import prepare_number_for_representation, bytes_to_kb, \
     UPDATE_FREQUENCY, TOPIC_AGGREGATION_FREQUENCY, \
     ROUND_DIGITS, MAXIMUM_OFFLINE_TIME
 from arni_core.helper import SEUID, SEUID_DELIMITER

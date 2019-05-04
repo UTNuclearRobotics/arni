@@ -178,9 +178,9 @@ class ConnectionItem(AbstractItem):
             content += self.tr("frequency") + ": " + prepare_number_for_representation(data_dict["frequency"]) \
                        + " " + self.tr("frequency_unit") + "  - "
             content += self.tr("bandwidth") + ": " + prepare_number_for_representation(
-                data_dict["bandwidth"]) + " " \
+                bytes_to_kb(data_dict["bandwidth"])) + " " \
                        + self.tr("bandwidth_unit") + " - "
-            content += self.tr("dropped_msgs") + ": " + prepare_number_for_representation(bytes_to_kb(data_dict["dropped_msgs"])) \
+            content += self.tr("dropped_msgs") + ": " + prepare_number_for_representation(data_dict["dropped_msgs"]) \
                        + " " + self.tr("dropped_msgs_unit")
 
         return content
