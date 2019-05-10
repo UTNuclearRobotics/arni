@@ -625,7 +625,7 @@
     <message>
         <location filename="src/arni_gui/node_item.py" line="222"/>
         <source>node_bandwidth_mean_unit</source>
-        <translation>Byte/s</translation>
+        <translation>KB/s</translation>
     </message>
     <message>
         <location filename="src/arni_gui/node_item.py" line="153"/>
@@ -635,7 +635,7 @@
     <message>
         <location filename="src/arni_gui/node_item.py" line="155"/>
         <source>node_bandwidth_stddev_unit</source>
-        <translation>Byte/s</translation>
+        <translation>KB/s</translation>
     </message>
     <message>
         <location filename="src/arni_gui/node_item.py" line="156"/>
@@ -645,7 +645,7 @@
     <message>
         <location filename="src/arni_gui/node_item.py" line="158"/>
         <source>node_bandwidth_max_unit</source>
-        <translation>Byte/s</translation>
+        <translation>KB/s</translation>
     </message>
     <message>
         <location filename="src/arni_gui/node_item.py" line="159"/>
