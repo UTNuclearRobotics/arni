@@ -109,6 +109,16 @@
                     </widget>
                   </item>
                   <item>
+                    <widget class="QCheckBox" name="hide_throttles_check_box">
+                      <property name="text">
+                        <string>Hide Throttles</string>
+                      </property>
+                      <property name="checked">
+                        <bool>true</bool>
+                      </property>
+                    </widget>
+                  </item>
+                  <item>
                     <spacer name="horizontalSpacer">
                       <property name="orientation">
                         <enum>Qt::Horizontal</enum>
@@ -168,7 +178,7 @@
                     </sizepolicy>
                   </property>
                   <property name="minimumHeight">
-                    <number>600</number>
+                    <number>200</number>
                   </property>
                 </widget>
               </item>
@@ -201,7 +211,7 @@
                     </widget>
                   </item>
                   <item>
-                    <widget class="QPushButton" name="start_spec_button">
+                    <widget class="QPushButton" name="start_spec_push_button">
                       <property name="sizePolicy">
                         <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
                           <horstretch>0</horstretch>
@@ -220,7 +230,7 @@
                     </widget>
                   </item>
                   <item>
-                    <widget class="QPushButton" name="start_counter_button">
+                    <widget class="QPushButton" name="start_counter_push_button">
                       <property name="sizePolicy">
                         <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
                           <horstretch>0</horstretch>
@@ -244,6 +254,9 @@
                 <layout class="QHBoxLayout" name="horizontalLayout">
                   <item>
                     <widget class="QPushButton" name="load_spec_push_button">
+                      <property name="enabled">
+                        <bool>false</bool>
+                      </property>
                       <property name="minimumSize">
                         <size>
                           <width>20</width>
@@ -257,6 +270,9 @@
                   </item>
                   <item>
                     <widget class="QPushButton" name="load_counter_push_button">
+                      <property name="enabled">
+                        <bool>false</bool>
+                      </property>
                       <property name="minimumSize">
                         <size>
                           <width>20</width>

@@ -4,7 +4,8 @@ import rospy
 from python_qt_binding.QtCore import QTranslator
 
 from abstract_item import AbstractItem
-from helper_functions import prepare_number_for_representation, change_number_exp, UPDATE_FREQUENCY, TOPIC_AGGREGATION_FREQUENCY, \
+from helper_functions import prepare_number_for_representation, bytes_to_kb, \
+    UPDATE_FREQUENCY, TOPIC_AGGREGATION_FREQUENCY, \
     ROUND_DIGITS, MAXIMUM_OFFLINE_TIME
 from arni_core.helper import SEUID, SEUID_DELIMITER
 from node_item import NodeItem
@@ -14,6 +15,7 @@ from rospy.impl.tcpros_service import ServiceProxy
 from rospy.rostime import Duration
 from connection_item import ConnectionItem
 
+from rosthrottle import MessageThrottle
 
 import re
 
@@ -350,7 +352,7 @@ class TopicItem(AbstractItem):
         if "frequency" in self._attributes:
             content += self.tr("frequency") + ": " + prepare_number_for_representation(data_dict["frequency"]) \
                    + " " + self.tr("frequency_unit") + " <br>"
-        content += self.tr("bandwidth") + ": " + prepare_number_for_representation(change_number_exp(0, 6, data_dict["bandwidth"])) \
+        content += self.tr("bandwidth") + ": " + prepare_number_for_representation(bytes_to_kb(data_dict["bandwidth"])) \
                    + " " + self.tr("bandwidth_unit") + " <br>"
 
         content += self.tr("dropped_msgs") + ": " + prepare_number_for_representation(data_dict["dropped_msgs"]) \
@@ -359,6 +361,23 @@ class TopicItem(AbstractItem):
                    + " " + self.tr("period_max_unit") + " <br>"
         content += self.tr("stamp_age_max") + ": " + prepare_number_for_representation(data_dict["stamp_age_max"]) \
                    + " " + self.tr("stamp_age_max_unit") + " <br>"
+                   
+        ## CARSON ADDED
+        if self.throttle is not None:
+            content += "<b>Active Throttle</b>"
+            content += "<ul>"
+            if isinstance(self.throttle, MessageThrottle):
+                content+= "<li>" + "Type: Message Throttle" + "</li>" 
+                content+= "<li>" + "Rate: " + prepare_number_for_representation(self.throttle.rate) + " Hz </li>"
+            else:
+                content+= "<li>" + "Type: Bandwidth Throttle" + "</li>" 
+                content+= "<li>" + "Bandwidth: " + prepare_number_for_representation(self.throttle.bandwidth) + " Bytes/s</li>"
+                content+= "<li>" + "Window: " + prepare_number_for_representation(self.throttle.window) + " s</li>"
+            content += "<li>" + "Publishing on: /%s"%(self.throttle.outtopic) + "</li>"
+            content += "</ul>"
+        else:
+            content += "No Active Throttles <br>" 
+        ##
 
         content += "</p>"
         return content
@@ -410,8 +429,8 @@ class TopicItem(AbstractItem):
             print(data_dict["window_stop"])
             print(e)
             raise UserWarning
-
-
+            
+            
         content = ""
         if data_dict["state"] is "error":
             content += self.get_erroneous_entries_for_log()
@@ -419,7 +438,7 @@ class TopicItem(AbstractItem):
             content += self.tr("frequency") + ": " + prepare_number_for_representation(
                 data_dict["frequency"]) + " " \
                        + self.tr("frequency_unit") + " - "
-            content += self.tr("bandwidth") + ": " + prepare_number_for_representation(data_dict["bandwidth"]) \
+            content += self.tr("bandwidth") + ": " + prepare_number_for_representation(bytes_to_kb(data_dict["bandwidth"])) \
                        + " " + self.tr("bandwidth_unit") + " - "
             content += self.tr("dropped_msgs") + ": " + prepare_number_for_representation(data_dict["dropped_msgs"]) \
                        + " " + self.tr("dropped_msgs_unit")
