@@ -1,8 +1,8 @@
 import os
 import sys
-import rospy
-import rospkg
 import subprocess
+import rospkg
+import rospy
 
 from rospy.rostime import Time, Duration
 
@@ -246,7 +246,10 @@ class TreeWidget(QWidget):
             self.__bagging_running = False
 
         else:                           # start bagging
-            filename = QFileDialog.getOpenFileName(self)
+            dialog = QFileDialog()
+            dialog.setFileMode(QFileDialog.AnyFile)
+            dialog.setFilter("Bag files (.bag)")
+            filename = dialog.getOpenFileName(self)
 
             if filename[0] is not u"":
                 self.__bagging_process = subprocess.Popen("rosbag record -a --output-name " + filename[0] + " __name:=bag_all_topic")
