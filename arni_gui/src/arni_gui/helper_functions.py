@@ -1,8 +1,6 @@
 import time
 import genpy
 
-import pyqtgraph as pg
-
 from python_qt_binding.QtGui import QBrush, QColor
 from python_qt_binding import QtCore
 
@@ -87,7 +85,7 @@ class ResizeableGraphicsLayoutWidget(pg.GraphicsLayoutWidget):
 class DateAxis(pg.AxisItem):
     def tickStrings(self, values, scale, spacing):
         strns = []
-        if values is None or len(values) is 0:
+        if values is None or len(values) == 0:
             pass
         else:
             rng = max(values) - min(values)
@@ -111,8 +109,8 @@ class DateAxis(pg.AxisItem):
 def choose_brush(index):
     """
     Chooses the brush according o the content of a cell.
-    
-    :param index: the index of the item 
+
+    :param index: the index of the item
     :type index: QModelIndex
     """
     if index.data() == "ok":
@@ -121,12 +119,12 @@ def choose_brush(index):
         return QColor(255, 165, 0)
     elif index.data() == "error":
         return QColor(255, 0, 0)
-    ## CARSON ADDED
+    # CARSON ADDED
     elif index.data()[:2] == 't!':
         temp = index.model().mapToSource(index)
         if temp.internalPointer().topic_item.throttle is not None:
             return QColor(0, 255, 255)
-    ##
+    #
 
     return QColor(255, 255, 255)
 
@@ -144,7 +142,7 @@ def prepare_number_for_representation(number):
     if number is None:
         return "unknown"
     if type(number) is int or type(number) is float:
-        return str(round(number, ROUND_DIGITS))
+        return str(int(number))
     if type(number) is genpy.rostime.Duration or type(number) is genpy.rostime.Time:
         return str(round(number.to_sec(), ROUND_DIGITS))
     if type(number) is str or type(number) is unicode:
@@ -190,19 +188,22 @@ def topic_statistics_state_to_string(element, state):
         elif number is element.UNKNOWN:
             return "unknown"
     raise TypeError("the state of the element is None or not known")
-    
-## CARSON ADDED
+
+
+# CARSON ADDED
 def change_number_exp(old_exp, new_exp, number):
     exponent = old_exp - new_exp
-    return number*10**exponent
-    
+    return number * 10 ** exponent
+
+
 def kb_to_bytes(val):
     """Converts a value in kilobytes to one in bytes.
-    
+
     Args:
         val (int): value in kilobytes
     """
     return val * 1000
+
 
 def bytes_to_kb(val):
     """Converts a value in bytes to one in kilobytes.

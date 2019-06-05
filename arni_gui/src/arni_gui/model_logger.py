@@ -7,14 +7,13 @@ class ModelLogger:
     """
     Convenience class for logging data.
     """
-    
+
     def __init__(self):
         """
         Initializes the ModelLogger.
         """
         self.__log_model = QStandardItemModel(0, 4, None)
         self.__log_model.setHorizontalHeaderLabels(["type", "date", "location", "message"])
-
 
     def log(self, type, date, location, message):
         """
@@ -34,7 +33,6 @@ class ModelLogger:
         self.__log_model.setData(self.__log_model.index(0, 1), time.strftime("%d.%m-%H:%M:%S", time.localtime(int(str(date)) / 1000000000)))
         self.__log_model.setData(self.__log_model.index(0, 2), str(location))
         self.__log_model.setData(self.__log_model.index(0, 3), str(message))
-
 
     def get_representation(self):
         """

@@ -1,9 +1,13 @@
+# CARSON ADDED #
+import re
+#
+
 from rqt_graph.dotcode import QUIET_NAMES
 
 try:  # Qt4 vs Qt5
-  from python_qt_binding.QtGui import QSortFilterProxyModel
+    from python_qt_binding.QtGui import QSortFilterProxyModel
 except ImportError:
-  from python_qt_binding.QtCore import QSortFilterProxyModel
+    from python_qt_binding.QtCore import QSortFilterProxyModel
 
 from python_qt_binding.QtCore import QObject, QModelIndex
 
@@ -14,15 +18,10 @@ from arni_gui.ros_model import ROSModel
 
 import sys
 
-if sys.version_info[0] is 2 or (sys.version_info[0] is 3 and sys.version_info[1] < 2):
+if sys.version_info[0] == 2 or (sys.version_info[0] == 3 and sys.version_info[1] < 2):
     from lru_cache import lru_cache
 else:
     from functools import lru_cache
-    
-
-### CARSON ADDED ###
-import re
-###
 
 
 class ItemFilterProxy(QSortFilterProxyModel):
@@ -30,7 +29,6 @@ class ItemFilterProxy(QSortFilterProxyModel):
     The ItemFilterProxy which is a QSortFilterProxyModel helps to filter the data going to the view so the user only
     sees what he wants to see (which he can modified by telling the view).
      """
-
 
     def __init__(self, parent=None):
         """
@@ -46,11 +44,11 @@ class ItemFilterProxy(QSortFilterProxyModel):
         self.__show_topics = True
         self.__show_subscribers = True
         self.__hide_debug = True
-        
-        ### CARSON ADDED ###
+
+        # CARSON ADDED #
         self.__hide_throttles = True
         self.__throttle_node_re = r'^[a-zA-Z](\w|/)*(_throttle_[0-9]+)$'
-        ### ###
+        #
 
         self.__filter_string = ""
 
@@ -96,8 +94,7 @@ class ItemFilterProxy(QSortFilterProxyModel):
             child = self.sourceModel().get_root_item().get_child(source_row)
             entries = [child.get_type(), child.get_seuid(), child.get_state(), child.get_short_data()]
 
-        child_childs = child.get_childs( self.sourceModel().parent(
-                    source_parent).internalPointer())
+        child_childs = child.get_childs(self.sourceModel().parent(source_parent).internalPointer())
 
         for i in range(0, len(child_childs)):
             if self.filterAcceptsRow(i, self.sourceModel().index(source_row, 0, source_parent)):
@@ -127,10 +124,10 @@ class ItemFilterProxy(QSortFilterProxyModel):
 
         if self.__hide_debug is True:
             for entry in self.__quiet_names:
-                if entries[1].find(entry) is not -1:
+                if entries[1].find(entry) != -1:
                     return False
-                    
-        ### CARSON ADDED ###
+
+        # CARSON ADDED #
         if self.__hide_throttles:
             m = re.match(self.__throttle_node_re, entries[1].split('/')[-1])
             if m is not None:
@@ -140,11 +137,10 @@ class ItemFilterProxy(QSortFilterProxyModel):
                 m = re.match(self.__throttle_node_re, parent_seuid.split('/')[-1])
                 if m is not None:
                     return False
-        ### ###
-
+        #
 
         # todo: speed this implementation a lot up by not using the model!!!
-        if self.__filter_string is not "":
+        if self.__filter_string != "":
             for i in range(0, len(entries)):
                 if self.__filter_string in entries[i]:
                     return QSortFilterProxyModel.filterAcceptsRow(self, source_row, source_parent)
@@ -190,14 +186,13 @@ class ItemFilterProxy(QSortFilterProxyModel):
         if self.__hide_debug is not hide_debug:
             self.__hide_debug = hide_debug
             self.invalidateFilter()
-    
-    ## CARSON ADDED
+
+    # CARSON ADDED
     def hide_throttles(self, hide_throttes):
-        if self.__hide_throttles is not hide_throttes: 
+        if self.__hide_throttles is not hide_throttes:
             self.__hide_throttles = hide_throttes
             self.invalidateFilter()
-    ##
-
+    #
 
     def show_nodes(self, show_nodes):
         """
@@ -238,9 +233,7 @@ class ItemFilterProxy(QSortFilterProxyModel):
         """
         self.__show_subscribers = show_subscribers
         self.invalidateFilter()
-    
 
     def set_filter_string(self, filter_string):
         self.invalidateFilter()
         self.__filter_string = filter_string
-

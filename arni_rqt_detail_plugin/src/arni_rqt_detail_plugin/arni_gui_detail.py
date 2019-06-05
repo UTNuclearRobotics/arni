@@ -18,12 +18,12 @@ class ArniGuiDetail(Plugin):
     """
     The ArniGuiDetail-Plugin
     """
-    
+
     def __init__(self, context):
         """
         Initializes the Plugin
         """
-        
+
         super(ArniGuiDetail, self).__init__(context)
         self.setObjectName('arni_gui_detail')
 
@@ -51,12 +51,9 @@ class ArniGuiDetail(Plugin):
         self.__tree_widget.show_erroneous_check_box.setCheckState(0)
 
         self.__selection_widget.connect_slots()
-        
+
         #: is handeld here for the widget communication
         self.__tree_widget.item_tree_view.clicked.connect(self.__on_item_in_item_tree_view_clicked)
-
-
-
 
     def __on_item_in_item_tree_view_clicked(self, index):
         """
@@ -68,9 +65,11 @@ class ArniGuiDetail(Plugin):
         # the index comes from the proxy_model so it has to be converted but not here
         self.__selection_widget.set_selected_item(index)
 
+        # also resize the tree widget
+        self.__tree_widget.resize_columns()
+
     def shutdown_plugin(self):
         pass
-
 
     def save_settings(self, plugin_settings, instance_settings):
         instance_settings.set_value("tab_widget", self.__selection_widget.get_current_tab())
@@ -82,7 +81,6 @@ class ArniGuiDetail(Plugin):
         instance_settings.set_value("also_show_subscribers_check_box", self.__tree_widget.also_show_subscribers_check_box.checkState())
         instance_settings.set_value("show_erroneous_check_box", self.__tree_widget.show_erroneous_check_box.checkState())
         instance_settings.set_value("relative_font_size", self.__tree_widget.get_relative_font_size())
-
 
     def restore_settings(self, plugin_settings, instance_settings):
         tab_value = instance_settings.value("tab_widget")

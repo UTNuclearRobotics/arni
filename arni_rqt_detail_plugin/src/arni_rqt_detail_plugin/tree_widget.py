@@ -1,36 +1,33 @@
 import os
 import sys
 import subprocess
+import yaml
+
 import rospkg
 import rospy
-
 from rospy.rostime import Time, Duration
 
 from python_qt_binding import loadUi
 from python_qt_binding.QtCore import QObject, Qt, QRegExp
 
+try:  # Qt4 vs Qt5
+    from python_qt_binding.QtGui import QSortFilterProxyModel
+    from python_qt_binding.QtGui import *
+except ImportError:
+    from python_qt_binding.QtCore import QSortFilterProxyModel
+    from python_qt_binding.QtWidgets import *
+
+from python_qt_binding.QtWidgets import QAction
+from python_qt_binding.QtCore import QPoint
+
+
 from arni_gui.ros_model import ROSModel
 from arni_gui.size_delegate import SizeDelegate
 from arni_gui.item_filter_proxy import ItemFilterProxy
 
-try:  # Qt4 vs Qt5
-  from python_qt_binding.QtGui import QSortFilterProxyModel
-  from python_qt_binding.QtGui import *
-except ImportError:
-  from python_qt_binding.QtCore import QSortFilterProxyModel
-  from python_qt_binding.QtWidgets import *
-
-
-from python_qt_binding.QtGui import QAction
-from python_qt_binding.QtCore import QPoint
-
-import yaml
-
-### CARSON ADDED ###
-import subprocess
+# CARSON ADDED #
 import signal
 import atexit
-### ###
 
 
 class TreeWidget(QWidget):
@@ -41,7 +38,7 @@ class TreeWidget(QWidget):
     def __init__(self, model, selection_widget, parent):
         """
         Initializes the widget.
-        
+
         :param model: the model of the widget
         :type model: ROSModel
         :param selection_widget: the selection_widget
@@ -79,7 +76,7 @@ class TreeWidget(QWidget):
         self.__size_delegate = SizeDelegate()
         self.item_tree_view.setItemDelegate(self.__size_delegate)
 
-        self.__font_size = 10
+        self.__font_size = 8
         self.item_tree_view.setStyleSheet("font-size: %dpt;" % self.__font_size)
         self.item_tree_view.expandAll()
         self.__is_expanded = True
@@ -104,45 +101,81 @@ class TreeWidget(QWidget):
         self.__bagging_process = None
         self.loaded_specs = 0
 
-        ### CARSON ADDED ###
+        # CARSON ADDED #
         self._spec_process = None
         self._counter_process = None
         atexit.register(self._cleanup)
-        ### ###
+        #
 
     def connect_slots(self):
         """Connects the slots."""
-        self.show_nodes_check_box.stateChanged.connect(self.__on_show_nodes_check_box_state_changed)
-        self.hide_debug_check_box.stateChanged.connect(self.__on_hide_debug_check_box_state_changed)
-        ## CARSON ADDED
-        self.hide_throttles_check_box.stateChanged.connect(self.__on_hide_throttles_check_box_state_changed)
-        ##
-        self.show_topics_check_box.stateChanged.connect(self.__on_show_topics_check_box_state_changed)
-        self.show_connections_check_box.stateChanged.connect(self.__on_show_connections_check_box_state_changed)
-        self.show_erroneous_check_box.stateChanged.connect(self.__on_show_erroneous_check_box_state_changed)
+        self.show_nodes_check_box.stateChanged.connect(
+            self.__on_show_nodes_check_box_state_changed
+        )
+        self.hide_debug_check_box.stateChanged.connect(
+            self.__on_hide_debug_check_box_state_changed
+        )
+        # CARSON ADDED
+        self.hide_throttles_check_box.stateChanged.connect(
+            self.__on_hide_throttles_check_box_state_changed
+        )
+        #
+        self.show_topics_check_box.stateChanged.connect(
+            self.__on_show_topics_check_box_state_changed
+        )
+        self.show_connections_check_box.stateChanged.connect(
+            self.__on_show_connections_check_box_state_changed
+        )
+        self.show_erroneous_check_box.stateChanged.connect(
+            self.__on_show_erroneous_check_box_state_changed
+        )
         self.also_show_subscribers_check_box.stateChanged.connect(
-            self.__on_also_show_subscribers_check_box_state_changed)
-        self.apply_push_button.clicked.connect(self.__on_apply_push_button_clicked)
-        self.minus_push_button.clicked.connect(self.__on_minus_push_button_clicked)
-        self.plus_push_button.clicked.connect(self.__on_plus_push_button_clicked)
+            self.__on_also_show_subscribers_check_box_state_changed
+        )
+        self.apply_push_button.clicked.connect(
+            self.__on_apply_push_button_clicked
+        )
+        self.minus_push_button.clicked.connect(
+            self.__on_minus_push_button_clicked
+        )
+        self.plus_push_button.clicked.connect(
+            self.__on_plus_push_button_clicked
+        )
 
-        self.filter_line_Edit.returnPressed.connect(self.__on_apply_push_button_clicked)
+        self.filter_line_Edit.returnPressed.connect(
+            self.__on_apply_push_button_clicked
+        )
 
-        self.expand_push_button.clicked.connect(self.__on_expand_push_button_clicked)
+        self.expand_push_button.clicked.connect(
+            self.__on_expand_push_button_clicked
+        )
 
-        self.item_tree_view.customContextMenuRequested.connect(self.__contextual_menu)
+        self.item_tree_view.customContextMenuRequested.connect(
+            self.__contextual_menu)
 
-        self.load_spec_push_button.clicked.connect(self.__on_load_spec_push_button_clicked)
-        self.recording_push_button.clicked.connect(self.__on_recording_push_button_clicked)
-        
-        ### CARSON ADDED ###
-        self.start_spec_push_button.clicked.connect(self.__on_start_spec_push_button_clicked)
-        self.start_counter_push_button.clicked.connect(self.__on_start_counter_push_button_clicked)
-        self.load_counter_push_button.clicked.connect(self.__on_load_counter_push_button_clicked)
-        ### ###
+        self.load_spec_push_button.clicked.connect(
+            self.__on_load_spec_push_button_clicked
+        )
+        self.recording_push_button.clicked.connect(
+            self.__on_recording_push_button_clicked
+        )
 
-        ### BAGGING CHANGES
-        self.bagging_push_button.clicked.connect(self.__on_bagging_push_button_clicked)
+        # CARSON ADDED #
+        self.start_spec_push_button.clicked.connect(
+            self.__on_start_spec_push_button_clicked
+        )
+        self.start_counter_push_button.clicked.connect(
+            self.__on_start_counter_push_button_clicked
+        )
+        self.load_counter_push_button.clicked.connect(
+            self.__on_load_counter_push_button_clicked
+        )
+        #
+
+        # BAGGING CHANGES
+        self.bagging_push_button.clicked.connect(
+            self.__on_bagging_push_button_clicked
+        )
 
     def __on_load_spec_push_button_clicked(self):
         """Called whenever the Load Specification button is clicked.
@@ -152,44 +185,46 @@ class TreeWidget(QWidget):
         #     QMessageBox.warning(self, "Warning", "The Specifications node is not running. Please start it before "
         #                             "loading specifications. Aborting.")
         #     return
-            
+
         filename = QFileDialog.getOpenFileName(self)
 
         if filename[0] != '':
-            output = os.system("rosparam load " + filename[0])
+            os.system("rosparam load " + filename[0])
             # original format line below:
             # output = os.system("rosparam load " + filename[0] + " /arni/specifications/rqt_arni_loaded" + str(self.loaded_specs))
             os.system("rosservice call /monitoring_node/reload_specifications")
             print("If there just popped up an error message, please make sure the processing node is running / "
                   "running correctly.")
             self.loaded_specs += 1
-    ### ###
-        
-    ### CARSON ADDED ###
+    #
+
+    # CARSON ADDED #
     def __on_load_counter_push_button_clicked(self):
         """Called whenever the Load Countermeasure button is clicked.
-        Opens a file picker, then loads that file into rosparams and forces a reload by the countermeasure node.
+        Opens a file picker, then loads that file into rosparams and forces a
+        reload by the countermeasure node.
         """
         # if self._counter_process is None:
         #     QMessageBox.warning(self, "Warning", "The Countermeasures node is not running. Please start it before "
         #                             "loading countermeasures. Aborting.")
         #     return
-        
+
         filename = QFileDialog.getOpenFileName(self)
 
         if filename[0] != '':
-            output = os.system("rosparam load " + filename[0])
+            os.system("rosparam load " + filename[0])
             os.system("rosservice call /countermeasure/reload_constraints")
-            print("If there just popped up an error message, please make sure the processing node is running / "
-                "running correctly.")
-                
+            print("If there just popped up an error message, please make sure "
+                  "the processing node is running / running correctly.")
+
     def __on_start_spec_push_button_clicked(self):
         """Called whenever the Start/Stop Specifications button is clicked.
-        Starts the Specifications node if none is running, or stops the currently running one.
+        Starts the Specifications node if none is running, or stops the
+        currently running one.
         """
         if self._spec_process is None:
-            self._spec_process = subprocess.Popen(['rosrun', 'arni_processing', 'arni_processing'], 
-                                                    stdout=open(os.devnull, 'wb'), stderr=open(os.devnull, 'wb'))
+            self._spec_process = subprocess.Popen(['rosrun', 'arni_processing', 'arni_processing'],
+                                                  stdout=open(os.devnull, 'wb'), stderr=open(os.devnull, 'wb'))
             # print(self._spec_process.pid)
             self.start_spec_push_button.setText('Stop Specifications')
             self.load_spec_push_button.setEnabled(True)
@@ -199,14 +234,15 @@ class TreeWidget(QWidget):
             self._spec_process = None
             self.start_spec_push_button.setText('Start Specifications')
             self.load_spec_push_button.setEnabled(False)
-            
+
     def __on_start_counter_push_button_clicked(self):
         """Called whenever the Start/Stop Countermeasures button is clicked.
-        Starts the Countermeasures node if none is running, or stops the currently running one.
+        Starts the Countermeasures node if none is running, or stops the
+        currently running one.
         """
         if self._counter_process is None:
-            self._counter_process = subprocess.Popen(['rosrun', 'arni_countermeasure', 'arni_countermeasure'], 
-                                                        stdout=open(os.devnull, 'wb'), stderr=open(os.devnull, 'wb'))
+            self._counter_process = subprocess.Popen(['rosrun', 'arni_countermeasure', 'arni_countermeasure'],
+                                                     stdout=open(os.devnull, 'wb'), stderr=open(os.devnull, 'wb'))
             # print(self._counter_process.pid)
             self.start_counter_push_button.setText('Stop Countermeasures')
             self.load_counter_push_button.setEnabled(True)
@@ -216,7 +252,7 @@ class TreeWidget(QWidget):
             self._counter_process = None
             self.start_counter_push_button.setText('Start Countermeasures')
             self.load_counter_push_button.setEnabled(False)
-        
+
     def _cleanup(self):
         """Cleans up the specifications and countermeasure processes on exit.
         This function is registered with atexit on widget creation.
@@ -227,7 +263,7 @@ class TreeWidget(QWidget):
         if self._counter_process is not None:
             self._counter_process.send_signal(signal.SIGINT)
             self._counter_process.wait()
-    ### ###
+    #
 
     def __on_recording_push_button_clicked(self):
         storage = []
@@ -282,15 +318,14 @@ class TreeWidget(QWidget):
 
                 else:
                     abort = True
-                    QMessageBox.warning(self, "Warning", "Not enough data for elements provided. "
-                                                         "Please try recording for a longer period of time"
-                                                     " or start further components. ")
+                    QMessageBox.warning(self, "Warning",
+                                        "Not enough data for elements provided. "
+                                        "Please try recording for a longer period of time"
+                                        " or start further components. ")
 
-            if not abort and filename[0] is not u"":
+            if not abort and filename[0] != u"":
                 with open(filename[0], u"w") as outfile:
                     outfile.write(yaml.dump(storage, default_flow_style=False))
-
-
 
         else:  # start now
             if len(self.__marked_items_map) == 0:
@@ -307,11 +342,11 @@ class TreeWidget(QWidget):
 
         """Callback for bagging push button
 
-        If bagging is not currently running, opens a file dialog and prompts the 
-        user to specify an output bagfile, then begins bagging all topics. If 
+        If bagging is not currently running, opens a file dialog and prompts the
+        user to specify an output bagfile, then begins bagging all topics. If
         bagging is currently running, stops bagging.
 
-        Args: 
+        Args:
             none
 
         Returns:
@@ -330,7 +365,7 @@ class TreeWidget(QWidget):
             dialog.setFilter("Bag files (.bag)")
             filename = dialog.getOpenFileName(self)
 
-            if filename[0] is not u"":
+            if filename[0] != u"":
                 self.__bagging_process = subprocess.Popen("rosbag record -a --output-name " + filename[0] + " __name:=bag_all_topic")
                 self.bagging_push_button.setText("Stop Bagging")
                 self.__bagging_running = True
@@ -377,7 +412,7 @@ class TreeWidget(QWidget):
         :param activated: 2 if checkBox is set, 0 if checkBox is unset
         :type activated: Integer
         """
-        if activated is 2:
+        if activated == 2:
             self.__filter_proxy.show_nodes(True)
         else:
             self.__filter_proxy.show_nodes(False)
@@ -388,13 +423,13 @@ class TreeWidget(QWidget):
             if self.also_show_subscribers_check_box.checkState():
                 self.also_show_subscriber_check_box.click()
 
-    ## CARSON ADDED
+    # CARSON ADDED
     def __on_hide_throttles_check_box_state_changed(self, activated):
-        if activated is 2:
+        if activated == 2:
             self.__filter_proxy.hide_throttles(True)
         else:
             self.__filter_proxy.hide_throttles(False)
-    ##
+    #
 
     def __on_hide_debug_check_box_state_changed(self, activated):
         """
@@ -403,11 +438,10 @@ class TreeWidget(QWidget):
         :param activated: 2 if checkBox is set, 0 if check is unset
         :type activated: Integer
         """
-        if activated is 2:
+        if activated == 2:
             self.__filter_proxy.hide_debug(True)
         else:
             self.__filter_proxy.hide_debug(False)
-
 
         # legacy code from show_hosts_check_box. Check box was deleted and replaced by hide debug check box.
         # if activated is 2:
@@ -430,7 +464,7 @@ class TreeWidget(QWidget):
         :param activated: 2 if checkBox is set, 0 if check is unset
         :type activated: Integer
         """
-        if activated is 2:
+        if activated == 2:
             self.__filter_proxy.show_topics(True)
             if not self.show_nodes_check_box.checkState():
                 self.show_nodes_check_box.click()
@@ -448,7 +482,7 @@ class TreeWidget(QWidget):
         :param activated: 2 if checkBox is set, 0 if check is unset
         :type activated: Integer
         """
-        if activated is 2:
+        if activated == 2:
             self.__filter_proxy.show_connections(True)
             if not self.show_nodes_check_box.checkState():
                 self.show_nodes_check_box.click()
@@ -466,7 +500,7 @@ class TreeWidget(QWidget):
         :param activated: 2 if checkBox is set, 0 if check is unset
         :type activated: Integer
         """
-        if activated is 2:
+        if activated == 2:
             self.__filter_proxy.setFilterRegExp(QRegExp("error"))
             self.__filter_proxy.setFilterKeyColumn(2)
         else:
@@ -479,7 +513,7 @@ class TreeWidget(QWidget):
         :param activated: 2 if checkBox is set, 0 if check is unset
         :type activated: Integer
         """
-        if activated is 2:
+        if activated == 2:
             self.__filter_proxy.show_subscribers(True)
             if not self.show_nodes_check_box.checkState():
                 self.show_nodes_check_box.click()
@@ -517,7 +551,7 @@ class TreeWidget(QWidget):
         """
         Lets the Treeview collaps/expand on click.
         """
-        pixmap = None
+        # pixmap = None
         if self.__is_expanded:
             self.__is_expanded = False
             self.item_tree_view.collapseAll()
@@ -556,3 +590,6 @@ class TreeWidget(QWidget):
             self.item_tree_view.resizeColumnToContents(i)
         size = self.item_tree_view.columnWidth(1)
         self.item_tree_view.setColumnWidth(1, size / 2 if size > 120 else 160)
+
+    def resize_columns(self):
+        self.__resize_columns()

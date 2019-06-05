@@ -57,23 +57,23 @@ class OverviewWidget(QWidget):
         self.log_tab_tree_view.setItemDelegate(self.__log_delegate)
 
         self.__last_update = rospy.Time.now()
-        
+
         self.__model = ROSModel()
 
         self.__log_filter_proxy = LogFilterProxy()
 
         self.__logger = self.__model.get_logger()
         self.__style_string = ".detailed_data_overview {\n" \
-                               "    font-size: 13\n;" \
-                               "}\n"
+                              "    font-size: 13\n;" \
+                              "}\n"
 
         self.information_tab_text_browser.setStyleSheet(self.__style_string)
 
         self.range_combo_box.clear()
-        #todo: are these in the right order?
+        # todo: are these in the right order?
         self.range_combo_box.addItem("10 " + self.tr("Seconds"))
         self.range_combo_box.addItem("30 " + self.tr("Seconds"))
-        #todo: adapt time!!!
+        # todo: adapt time!!!
         self.range_combo_box.addItem("60 " + self.tr("Seconds"))
         self.range_combo_box.setCurrentIndex(0)
 
@@ -84,11 +84,10 @@ class OverviewWidget(QWidget):
         self.selected_label.setText(self.tr("Selected") + ":")
         self.range_label.setText(self.tr("Range") + ":")
 
-
         self.__log_filter_proxy.filter_by_item(None)
         self.__log_filter_proxy.setDynamicSortFilter(True)
 
-        #set proxy model
+        # set proxy model
         self.__log_filter_proxy.setSourceModel(self.__logger.get_representation())
 
         self.log_tab_tree_view.setModel(self.__log_filter_proxy)

@@ -74,11 +74,11 @@ class SelectionWidget(QWidget):
     """
     The SelectionWidget of the ArniGuiDetail-Plugin.
     """
-    
+
     def __init__(self, model):
         """
         Initializes the Widget.
-        
+
         :param model: the model of the widget
         :type model: ROSModel
         """
@@ -94,7 +94,6 @@ class SelectionWidget(QWidget):
         self.setObjectName('SelectionWidgetUi')
 
         self.__selected_item = None
-
 
         self.__draw_graphs = True
         self.__current_combo_box_index = 0

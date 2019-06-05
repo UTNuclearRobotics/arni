@@ -2,6 +2,9 @@ from threading import Lock
 import time
 import os
 
+# debug
+import inspect
+
 import rospy
 import rospkg
 from rospy.rostime import Duration, Time
@@ -120,20 +123,20 @@ class ROSModel(QAbstractItemModel):
         self.__buffer_thread = BufferThread(self)
         self.__buffer_thread.start()
 
-    def get_overview_data_since(self, time=None):
+    def get_overview_data_since(self, s_time=None):
         """
         Return the info needed for the OverviewWidget as a dict.
 
-        :param time: the lower bound from the intervall
-        :type time: rospy.Time
-        
-        :return: the overview data 
+        :param s_time: the lower bound from the intervall
+        :type s_time: rospy.Time
+
+        :return: the overview data
         :rtype: dict of values
         """
-        if time is None:
+        if s_time is None:
             data_dict = self.__root_item.get_latest_data()
         else:
-            data_dict = self.__root_item.get_items_younger_than(time)
+            data_dict = self.__root_item.get_items_younger_than(s_time)
 
         return data_dict
 
@@ -146,6 +149,11 @@ class ROSModel(QAbstractItemModel):
         :param role: the role that should be used
         :type role: int
         """
+
+        # cframe = inspect.currentframe().f_back
+        # finfo = inspect.getframeinfo(cframe)
+        # print ("data: " + finfo.filename + " line: " + str(finfo.lineno))
+
         if index is not None:
             if not index.isValid():
                 return None
@@ -155,7 +163,7 @@ class ROSModel(QAbstractItemModel):
             item = index.internalPointer()
             if item is None:
                 raise IndexError("item is None")
-            if self.__mapping[index.column()] is "data":
+            if self.__mapping[index.column()] == "data":
                 return item.get_short_data()
             return item.get_latest_data(self.__mapping[index.column()])[self.__mapping[index.column()]]
         return None
@@ -166,8 +174,8 @@ class ROSModel(QAbstractItemModel):
 
         :param index: the index of the item
         :type index: QModelIndex
-        
-        :returns: the flags 
+
+        :returns: the flags
         :rtype: ItemFlags
         """
         if not index.isValid():
@@ -185,19 +193,24 @@ class ROSModel(QAbstractItemModel):
         :type orientation: Orientation
         :param role:
         :type role: int
-        
-        :returns: the header data 
+
+        :returns: the header data
         :rtype: QVariant
         """
+
+        # cframe = inspect.currentframe().f_back
+        # finfo = inspect.getframeinfo(cframe)
+        # print ("caller: " + finfo.filename + " line: " + str(finfo.lineno))
+
         if orientation == Qt.Horizontal and role == Qt.DisplayRole:
-            if section is 0:
+            if section == 0:
                 return " " + self.tr('Type')
-            elif section is 1:
+            elif section == 1:
                 return " " + self.tr('Name')
-            elif section is 2:
+            elif section == 2:
                 return " " + self.tr('State')
-            else:
-                return " " + self.tr('Data')
+            elif section == 3:
+                return " " + " Avg. CPU | Avg. RAM | Msg. Freq |      Bandwidth      | Other"
         return None
 
     def index(self, row, column, parent):
@@ -208,10 +221,10 @@ class ROSModel(QAbstractItemModel):
         :type row: int
         :param column: the index of the column
         :type column: int
-        :param parent: the parent 
+        :param parent: the parent
         :type parent: QModelIndex
-        
-        :returns: the index 
+
+        :returns: the index
         :rtype: QModelIndex
         """
         if not self.hasIndex(row, column, parent):
@@ -237,8 +250,8 @@ class ROSModel(QAbstractItemModel):
 
         :param index: the index of the child
         :type index: QModelIndex
-        
-        :returns: the parent 
+
+        :returns: the parent
         :rtype: QModelIndex
         """
         if not index.isValid():
@@ -261,8 +274,8 @@ class ROSModel(QAbstractItemModel):
 
         :param parent: the parent
         :type parent: QModelIndex
-        
-        :returns: the nuber amount of rows 
+
+        :returns: the nuber amount of rows
         :rtype: int
         """
         if parent.column() > 0:
@@ -283,7 +296,7 @@ class ROSModel(QAbstractItemModel):
 
         :param parent: the parent
         :type parent: QModelIndex
-        
+
         :returns: int
         """
         if parent.isValid():
@@ -374,21 +387,21 @@ class ROSModel(QAbstractItemModel):
             for host_item in self.__root_item.get_childs():
                 # hostinfo
                 connected_hosts += 1
-                if host_item.get_state() is "warning" and state is not "error":
+                if host_item.get_state() == "warning" and state != "error":
                     state = "warning"
-                elif host_item.get_state() is "error":
+                elif host_item.get_state() == "error":
                     state = "error"
 
                 last_entry = {}
-                data = host_item.get_items_younger_than(Time.now() - (
-                    Duration(secs=10) if int(Duration(secs=10).to_sec()) <= int(Time.now().to_sec()) else Time(0)),
-                                                        "bandwidth_mean", "cpu_usage_max",
-                                                        "cpu_temp_mean", "cpu_usage_mean", "cpu_temp_max",
-                                                        "ram_usage_max",
-                                                        "ram_usage_mean")
+                data = host_item.get_items_younger_than(
+                    Time.now() - (Duration(secs=10) if int(Duration(secs=10).to_sec()) <= int(Time.now().to_sec()) else Time(0)),
+                    "bandwidth_mean", "cpu_usage_max",
+                    "cpu_temp_mean", "cpu_usage_mean", "cpu_temp_max",
+                    "ram_usage_max", "ram_usage_mean")
+
                 if data["window_stop"]:
                     for key in data:
-                        if key is not "window_stop":
+                        if key != "window_stop":
                             last_entry[key] = data[key][-1]
                 else:
                     data = host_item.get_latest_data("bandwidth_mean", "cpu_usage_max", "cpu_temp_mean",
@@ -399,27 +412,27 @@ class ROSModel(QAbstractItemModel):
 
                 for key in last_entry:
                     if last_entry[key]:
-                        if key is "bandwidth_mean":
+                        if key == "bandwidth_mean":
                             for entry in last_entry[key]:
-                                if type(entry) is not unicode:
-                                    if entry is not 0:
+                                if type(entry) != unicode:
+                                    if entry != 0:
                                         data_dict["total_traffic"] += entry
-                        elif key is "cpu_temp_max" or key is "ram_usage_max":
+                        elif key == "cpu_temp_max" or key == "ram_usage_max":
                             # very unprobably the temp might be 0 then the programm is not showing this value!
-                            if type(last_entry[key]) is not unicode:
-                                if last_entry[key] is not 0:
+                            if type(last_entry[key]) != unicode:
+                                if last_entry[key] != 0:
                                     if data_dict[key] < last_entry[key]:
                                         data_dict[key] = last_entry[key]
                         else:
-                            if type(last_entry[key]) is not unicode:
-                                if last_entry[key] is not 0:
+                            if type(last_entry[key]) != unicode:
+                                if last_entry[key] != 0:
                                     data_dict[key] += last_entry[key]
 
                 for node_item in host_item.get_childs():
                     # nodeinfo
                     connected_nodes += 1
-                    
-                    ## CARSON ADDED
+
+                    # CARSON ADDED
                     if node_item.timed_out():
                         # probably a more efficient way to do this
                         indices = []
@@ -429,31 +442,31 @@ class ROSModel(QAbstractItemModel):
                         for i in indices:
                             del host_item._child_items[i]
                         break
-                    ##
+                    #
 
-                    if node_item.get_state() is "warning" and state is not "error":
+                    if node_item.get_state() == "warning" and state != "error":
                         state = "warning"
-                    elif node_item.get_state() is "error":
+                    elif node_item.get_state() == "error":
                         state = "error"
 
                     for topic_item in node_item.get_childs():
                         # topic info
                         topic_counter += 1
 
-                        if topic_item.get_state() is "warning" and state is not "error":
+                        if topic_item.get_state() == "warning" and state != "error":
                             state = "warning"
-                        elif topic_item.get_state() is "error":
+                        elif topic_item.get_state() == "error":
                             state = "error"
 
                         for connection_item in topic_item.get_childs():
                             # connection info
                             connection_counter += 1
 
-                            if connection_item.get_state() is "warning" and state is not "error":
+                            if connection_item.get_state() == "warning" and state != "error":
                                 state = "warning"
-                            elif connection_item.get_state() is "error":
+                            elif connection_item.get_state() == "error":
                                 state = "error"
-                                
+
             for key in data_dict:
                 if key != "state" and key != "cpu_temp_max" and key != "total_traffic" and key != "ram_usage_max" \
                         and self.__root_item.child_count():
@@ -470,7 +483,6 @@ class ROSModel(QAbstractItemModel):
             self.__root_item.append_data_dict(data_dict)
         self.__model_lock.release()
         self.layoutChanged.emit()
-
 
     def __transform_rated_statistics_item(self, item):
         """
@@ -521,7 +533,7 @@ class ROSModel(QAbstractItemModel):
         :param item: the TopicStatistics item
         :type item: TopicStatistics
         """
-        topic_seuid = self.__seuid_helper.from_message(item)
+        self.__seuid_helper.from_message(item)
         connection_seuid = self.__seuid_helper.from_message(item)
 
         connection_item = self.get_or_add_item_by_seuid(connection_seuid)
@@ -555,7 +567,7 @@ class ROSModel(QAbstractItemModel):
         """
         Returns the log_model.
 
-        :returns: the log-model 
+        :returns: the log-model
         :rtype: QStandardItemModel
         """
         return self.__log_model
@@ -563,7 +575,7 @@ class ROSModel(QAbstractItemModel):
     def get_logger(self):
         """
         Returns the logger of the model.
-        
+
         :returns: the logger
         :rtype: ModelLogger
         """
@@ -573,7 +585,7 @@ class ROSModel(QAbstractItemModel):
         """
         Returns the overview-data for the overview-widget.
 
-        :returns: the overview-data 
+        :returns: the overview-data
         :rtype: str
         """
         return self.__root_item.get_detailed_data()
@@ -582,7 +594,7 @@ class ROSModel(QAbstractItemModel):
         """
         returns the root item of the ROSModel.
 
-        :returns: the root-item 
+        :returns: the root-item
         :rtype: AbstractItem
         """
         return self.__root_item
@@ -608,7 +620,7 @@ class ROSModel(QAbstractItemModel):
         """
         if seuid is None:
             raise UserWarning("seuid was None!")
-        if seuid not in self.__identifier_dict or seuid[0] is 't':
+        if seuid not in self.__identifier_dict or seuid[0] == 't':
             parent = None
             item = None
             if seuid[0] == "h":

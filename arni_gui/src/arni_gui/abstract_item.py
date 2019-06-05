@@ -10,7 +10,7 @@ from helper_functions import prepare_number_for_representation, topic_statistics
 
 
 class AbstractItem(QObject):
-    """ 
+    """
     Provides a unified interface to access the items of the model.
     INTERNAL: WARNING! Whenever the key-values at the beginning are not set right, the oddest things may occur!
     """
@@ -18,7 +18,7 @@ class AbstractItem(QObject):
     def __init__(self, logger, seuid, parent=None):
         """
         Initializes the AbstractItem.
-        
+
         :param seuid: the seuid of the AbstractItem
         :type seuid: str
         :param logger: a logger where to log when special events occur
@@ -65,7 +65,6 @@ class AbstractItem(QObject):
         self._rated_attributes.append("alive.state")
         self.is_subscriber = False
 
-
     def get_type(self):
         """
         Returns the type of the item
@@ -90,7 +89,7 @@ class AbstractItem(QObject):
         self.__state.append(state)
 
     def set_state(self, state):
-        if len(self.__state) is not 0:
+        if len(self.__state) != 0:
             self.__state[-1] = state
         else:
             self.__state.append(state)
@@ -136,17 +135,17 @@ class AbstractItem(QObject):
     def _update_current_state(self):
         """
         This method updates the current state of the AbstractItem.
-        
+
         :raises TypeError: at the initialization, it's possible that last_states["state"] has no entries and a TypeError occures
         """
         if self.get_state():
-            if self.get_state() is not "error":
+            if self.get_state() != "error":
                 last_states = self.get_rated_items_younger_than(Time.now() - (
                     Duration(secs=WARNING_TIMEOUT) if int(Duration(secs=5).to_sec()) <= int(Time.now().to_sec()) else Time(0)),
-                                                                "state")
+                    "state")
                 try:
                     for i in range(0, len(last_states["state"])):
-                        if last_states["state"][i] is "error":
+                        if last_states["state"][i] == "error":
                             self.set_state("warning")
                             break
                 except TypeError:
@@ -161,12 +160,12 @@ class AbstractItem(QObject):
         :raises KeyError: if an entry is in the rated dictionary but not found in the message
         """
         self._data_lock.acquire()
-        #self._alive_timer = rospy.Time.now()
+        # self._alive_timer = rospy.Time.now()
         for attribute in self._data:
             try:
-                if attribute is "frequency":
+                if attribute == "frequency":
                     self._data[attribute].append(message.delivered_msgs / (message.window_stop - message.window_start).to_sec())
-                elif attribute is "bandwidth":
+                elif attribute == "bandwidth":
                     self._data[attribute].append(message.traffic / (message.window_stop - message.window_start).to_sec())
                 else:
                     self._data[attribute].append(getattr(message, attribute))
@@ -200,14 +199,14 @@ class AbstractItem(QObject):
             for i in range(0, len(element.state)):
                 state = topic_statistics_state_to_string(element, element.state[i])
                 self._rated_data[element.statistic_type + ".state"].append(state)
-                if (state is "low" or state is "high") and state is not "ok" and state is not "unkown":
+                if (state == "low" or state == "high") and state != "ok" and state != "unkown":
                     new_state = "error"
-                elif state is "ok" and new_state is not "error":
+                elif state == "ok" and new_state != "error":
                     new_state = "ok"
 
         self.add_state(new_state)
         self._update_current_state()
-        if new_state is "error" and last_state is not "error":
+        if new_state == "error" and last_state != "error":
             self._logger.log("error", Time.now(), self.seuid, self.get_erroneous_entries_for_log())
         self._rated_data_lock.release()
 
@@ -286,14 +285,14 @@ class AbstractItem(QObject):
 
         if args:
             for key in args:
-                if key is 'name':
+                if key == 'name':
                     return_dict['name'] = self.seuid
-                elif key is 'type':
+                elif key == 'type':
                     return_dict['type'] = self._type
                     # elif key is 'data':
                     # return_dict['data'] = self.get_short_data()
-                elif key is 'state':
-                    if len(self.__state) is not 0:
+                elif key == 'state':
+                    if len(self.__state) != 0:
                         return_dict['state'] = self.get_state()
                     else:
                         return_dict["state"] = "unknown"
@@ -335,7 +334,7 @@ class AbstractItem(QObject):
                     return_dict[entry] = self._rated_data[entry][-1]
                 else:
                     return_dict[entry] = self.tr("Currently no value available")
-            if len(self.__state) is not 0:
+            if len(self.__state) != 0:
                 return_dict['state'] = self.get_state()
             else:
                 return_dict['state'] = "unknown"
@@ -371,7 +370,7 @@ class AbstractItem(QObject):
         return_values["window_stop"] = []
         length = len(list_of_time)
 
-        if length is not 0:
+        if length != 0:
             if list_of_time[-1] < time:
                 for key in return_values:
                     return_values[key] = self._data[key]
@@ -398,7 +397,7 @@ class AbstractItem(QObject):
         self._rated_data_lock.acquire()
         list_of_time = self._data["window_stop"]
 
-        if len(list_of_time) is not 0:
+        if len(list_of_time) != 0:
             i = 0
             entries_to_delete = self.get_items_older_than(time)
 
@@ -430,7 +429,7 @@ class AbstractItem(QObject):
         return_values["window_stop"] = []
         length = len(list_of_time)
 
-        if length is not 0:
+        if length != 0:
             if list_of_time[-1] < time:
                 for key in return_values:
                     return_values[key] = self._rated_data[key]
@@ -450,12 +449,12 @@ class AbstractItem(QObject):
 
         :param time: the upper bound
         :type time: rospy.Time
-        
+
         :raises IndexError: Because in most cases not all values are monitored, it is possible that a reated_data_value is empty
         """
         list_of_time = self._rated_data["window_stop"]
 
-        if len(list_of_time) is not 0:
+        if len(list_of_time) != 0:
             i = 0
             entries_to_delete = self.get_rated_items_older_than(time)
 
@@ -478,7 +477,7 @@ class AbstractItem(QObject):
         :type time: rospy.Time
         :param args: the keys to the dict
         :type args: str
-        
+
         :returns: dict of lists
         :rtype: dict
         :raises KeyError: if an element in args cannot be found in any of the dictionaries (data vs rated data)
@@ -500,7 +499,7 @@ class AbstractItem(QObject):
         list_of_time = self._data["window_stop"]
         length = len(list_of_time)
 
-        if length is not 0:
+        if length != 0:
             if list_of_time[0] >= time:
                 for key in return_values:
                     try:
@@ -556,10 +555,10 @@ class AbstractItem(QObject):
         list_of_time = self._rated_data["window_stop"]
         length = len(list_of_time)
 
-        if length is not 0:
+        if length != 0:
             if list_of_time[0] >= time:
                 for key in return_values:
-                    if key is 'state':
+                    if key == 'state':
                         return_values[key] = self.__state
                     else:
                         try:
@@ -575,7 +574,7 @@ class AbstractItem(QObject):
                         for key in return_values:
                             if key in self._rated_data:
                                 return_values[key] = self._rated_data[key][breakpoint:length]
-                            elif key is "state":
+                            elif key == "state":
                                 return_values[key] = self.__state[breakpoint:length]
                             else:
                                 raise IndexError("IndexError! length of the list %s, accessed index %s. length of data"
@@ -620,41 +619,39 @@ class AbstractItem(QObject):
         """
         self._data_lock.acquire()
         content = "<p class=\"get_erroneous_entries\">"
-        return_values = {}
 
         if self.__state:
-            if self.get_state() is not "ok" and self.get_state() is not "unknown":
+            if self.get_state() != "ok" and self.get_state() != "unknown":
                 if self._rated_data["alive.state"]:
-                    if self._rated_data["alive.state"][-1] is "high" or self._rated_data["alive.state"][-1] is "low":
+                    if self._rated_data["alive.state"][-1] == "high" or self._rated_data["alive.state"][-1] == "low":
                         content += self.tr("alive actual_value:") + \
-                                   " <span class=\"erroneous_entry\">" + prepare_number_for_representation(
+                            " <span class=\"erroneous_entry\">" + prepare_number_for_representation(
                             self._rated_data["alive.actual_value"][-1][0]) + "</span>" + \
-                                   "<br>"
+                            "<br>"
                         content += self.tr("alive expected_value:") + \
-                                   " <span class=\"erroneous_entry\">" + str(
+                            " <span class=\"erroneous_entry\">" + str(
                             self._rated_data["alive.expected_value"][-1][0]) + "</span>" + \
-                                   "<br>"
+                            "<br>"
                         content += self.tr("alive state:") + \
-                                   " <span class=\"erroneous_entry\">" + str(
+                            " <span class=\"erroneous_entry\">" + str(
                             self._rated_data["alive.state"][-1]) + "</span>" + "<br>"
 
                 for entry in self._attributes:
                     if self._rated_data[entry + ".state"]:
-                        if self._rated_data[entry + ".state"][-1] is "high" or self._rated_data[entry + ".state"][
-                                -1] is "low":
+                        if self._rated_data[entry + ".state"][-1] == "high" or self._rated_data[entry + ".state"][-1] == "low":
                             content += self.tr(entry) + \
-                                       self.tr(" actual_value:") + \
-                                       " <span class=\"erroneous_entry\">" + prepare_number_for_representation(
+                                self.tr(" actual_value:") + \
+                                " <span class=\"erroneous_entry\">" + prepare_number_for_representation(
                                 self._rated_data[entry + ".actual_value"][-1][0]) + "</span> " + \
-                                       self.tr(entry + "_unit") + "<br>"
+                                self.tr(entry + "_unit") + "<br>"
                             content += self.tr(entry) + \
-                                       self.tr(" expected_value:") + \
-                                       " <span class=\"erroneous_entry\">" + str(
+                                self.tr(" expected_value:") + \
+                                " <span class=\"erroneous_entry\">" + str(
                                 self._rated_data[entry + ".expected_value"][-1][0]) + "</span> " + \
-                                       self.tr(entry + "_unit") + "<br>"
+                                self.tr(entry + "_unit") + "<br>"
                             content += self.tr(entry) + \
-                                       self.tr(" state:") + \
-                                       " <span class=\"erroneous_entry\">" + str(
+                                self.tr(" state:") + \
+                                " <span class=\"erroneous_entry\">" + str(
                                 self._rated_data[entry + ".state"][-1]) + "</span>" + "<br>"
                 content += "<br>"
         content += "</p>"
@@ -668,11 +665,11 @@ class AbstractItem(QObject):
         :return: False
         """
         return False
-        
-    ## CARSON ADDED
+
+    # CARSON ADDED
     def can_execute_throttles(self):
         return False
-    ##
+    #
 
     def get_short_data(self):
         return self.get_erroneous_entries_for_log()
@@ -687,13 +684,13 @@ class AbstractItem(QObject):
         self._data_lock.acquire()
         content = ""
         if len(self._rated_data["window_stop"]) != 0:
-            if self.get_state() is not "ok" and self.get_state() is not "unknown":
+            if self.get_state() != "ok" and self.get_state() != "unknown":
                 if self._rated_data["alive.state"][-1] == "high" or self._rated_data["alive.state"][-1] == "low":
                     content += self.tr("alive") + ": " + str(self._rated_data["alive.actual_value"][-1][-1]) + ", "
 
                 for entry in self._attributes:
                     if self._rated_data[entry + ".state"]:
-                        if self._rated_data[entry + ".state"][-1] == "high" or self._rated_data[entry + ".state"][-1] is "low":
+                        if self._rated_data[entry + ".state"][-1] == "high" or self._rated_data[entry + ".state"][-1] == "low":
                             content += self.tr(entry) + ": " + str(self._rated_data[entry + ".state"][-1]) + ", "
         else:
             return "Not sufficient rated data yet"

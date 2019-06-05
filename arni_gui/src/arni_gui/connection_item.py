@@ -29,9 +29,9 @@ class ConnectionItem(AbstractItem):
         self.__parent = parent
         self._type = "connection"
 
-        self.add_keys=["dropped_msgs", "traffic"]
-        self.avg_keys=["period_mean", "period_stddev", "stamp_age_mean", "stamp_age_stddev", "bandwidth", "frequency"]
-        self.max_keys=["period_max", "stamp_age_max"]
+        self.add_keys = ["dropped_msgs", "traffic"]
+        self.avg_keys = ["period_mean", "period_stddev", "stamp_age_mean", "stamp_age_stddev", "bandwidth", "frequency"]
+        self.max_keys = ["period_max", "stamp_age_max"]
 
         self._attributes = []
         self._attributes.extend(["dropped_msgs", "traffic",
@@ -46,7 +46,6 @@ class ConnectionItem(AbstractItem):
             self._rated_attributes.append(item + ".expected_value")
             self._rated_attributes.append(item + ".state")
 
-
         for item in self._rated_attributes:
             self._add_rated_data_list(item)
 
@@ -55,7 +54,6 @@ class ConnectionItem(AbstractItem):
         self.show_as_subscriber = False
         self.tree_item1 = None
         self.tree_item2 = None
-
 
     def aggregate_data(self, period):
         """
@@ -96,9 +94,6 @@ class ConnectionItem(AbstractItem):
 
         return values
 
-
-
-
     def execute_action(self, action):
         """
         Not senseful, Connection cannot execute actions.
@@ -111,12 +106,12 @@ class ConnectionItem(AbstractItem):
     def get_detailed_data(self):
         """
         Returns the detailed data of the ConnectionItem.
-        
+
         :returns: str
         """
         data_dict = self.get_latest_data()
         if Time.now() - data_dict["window_stop"] > Duration(secs=5):
-          return "No recent data"
+            return "No recent data"
 
         content = "<p class=\"detailed_data\">"
 
@@ -127,21 +122,21 @@ class ConnectionItem(AbstractItem):
                        + " " + self.tr("frequency_unit") + " <br>"
 
         content += self.tr("dropped_msgs") + ": " + prepare_number_for_representation(data_dict["dropped_msgs"]) + " " \
-                   + self.tr("dropped_msgs_unit") + " <br>"
+                + self.tr("dropped_msgs_unit") + " <br>"
         content += self.tr("bandwidth") + ": " + prepare_number_for_representation(bytes_to_kb(data_dict["bandwidth"])) + " " \
-                    + " " + self.tr("bandwidth_unit") + " <br>"
+                + " " + self.tr("bandwidth_unit") + " <br>"
         content += self.tr("period_mean") + ": " + prepare_number_for_representation(data_dict["period_mean"]) \
-                   + " " + self.tr("period_mean_unit") + " <br>"
+                + " " + self.tr("period_mean_unit") + " <br>"
         content += self.tr("period_stddev") + ": " + prepare_number_for_representation(data_dict["period_stddev"]) \
-                   + " " + self.tr("period_stddev_unit") + " <br>"
+                + " " + self.tr("period_stddev_unit") + " <br>"
         content += self.tr("period_max") + ": " + prepare_number_for_representation(data_dict["period_max"]) + " " \
-                   + self.tr("period_max_unit") + " <br>"
+                + self.tr("period_max_unit") + " <br>"
         content += self.tr("stamp_age_mean") + ": " + prepare_number_for_representation(data_dict["stamp_age_mean"]) \
-                   + " " + self.tr("stamp_age_mean_unit") + " <br>"
+                + " " + self.tr("stamp_age_mean_unit") + " <br>"
         content += self.tr("stamp_age_stddev") + ": " + prepare_number_for_representation(data_dict["stamp_age_stddev"]) \
-                   + " " + self.tr("stamp_age_stddev_unit") + " <br>"
+                + " " + self.tr("stamp_age_stddev_unit") + " <br>"
         content += self.tr("stamp_age_max") + ": " + prepare_number_for_representation(data_dict["stamp_age_max"]) \
-                   + " " + self.tr("stamp_age_max_unit") + " <br>"
+                + " " + self.tr("stamp_age_max_unit") + " <br>"
         content += "</p>"
 
         return content
