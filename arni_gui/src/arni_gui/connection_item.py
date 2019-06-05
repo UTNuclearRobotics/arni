@@ -4,7 +4,7 @@ from rospy.rostime import Time, Duration
 from python_qt_binding.QtCore import QTranslator
 
 from abstract_item import AbstractItem
-from helper_functions import prepare_number_for_representation, MAXIMUM_OFFLINE_TIME, ROUND_DIGITS
+from helper_functions import prepare_number_for_representation, bytes_to_kb, MAXIMUM_OFFLINE_TIME, ROUND_DIGITS
 
 
 class ConnectionItem(AbstractItem):
@@ -128,7 +128,7 @@ class ConnectionItem(AbstractItem):
 
         content += self.tr("dropped_msgs") + ": " + prepare_number_for_representation(data_dict["dropped_msgs"]) + " " \
                    + self.tr("dropped_msgs_unit") + " <br>"
-        content += self.tr("bandwidth") + ": " + prepare_number_for_representation(data_dict["bandwidth"]) + " " \
+        content += self.tr("bandwidth") + ": " + prepare_number_for_representation(bytes_to_kb(data_dict["bandwidth"])) + " " \
                     + " " + self.tr("bandwidth_unit") + " <br>"
         content += self.tr("period_mean") + ": " + prepare_number_for_representation(data_dict["period_mean"]) \
                    + " " + self.tr("period_mean_unit") + " <br>"
@@ -178,7 +178,7 @@ class ConnectionItem(AbstractItem):
             content += self.tr("frequency") + ": " + prepare_number_for_representation(data_dict["frequency"]) \
                        + " " + self.tr("frequency_unit") + "  - "
             content += self.tr("bandwidth") + ": " + prepare_number_for_representation(
-                data_dict["bandwidth"]) + " " \
+                bytes_to_kb(data_dict["bandwidth"])) + " " \
                        + self.tr("bandwidth_unit") + " - "
             content += self.tr("dropped_msgs") + ": " + prepare_number_for_representation(data_dict["dropped_msgs"]) \
                        + " " + self.tr("dropped_msgs_unit")

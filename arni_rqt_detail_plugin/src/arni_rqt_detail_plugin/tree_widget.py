@@ -25,6 +25,12 @@ from python_qt_binding.QtCore import QPoint
 
 import yaml
 
+### CARSON ADDED ###
+import subprocess
+import signal
+import atexit
+### ###
+
 
 class TreeWidget(QWidget):
     """
@@ -95,10 +101,19 @@ class TreeWidget(QWidget):
         self.__recording_running = False
         self.loaded_specs = 0
 
+        ### CARSON ADDED ###
+        self._spec_process = None
+        self._counter_process = None
+        atexit.register(self._cleanup)
+        ### ###
+
     def connect_slots(self):
         """Connects the slots."""
         self.show_nodes_check_box.stateChanged.connect(self.__on_show_nodes_check_box_state_changed)
         self.hide_debug_check_box.stateChanged.connect(self.__on_hide_debug_check_box_state_changed)
+        ## CARSON ADDED
+        self.hide_throttles_check_box.stateChanged.connect(self.__on_hide_throttles_check_box_state_changed)
+        ##
         self.show_topics_check_box.stateChanged.connect(self.__on_show_topics_check_box_state_changed)
         self.show_connections_check_box.stateChanged.connect(self.__on_show_connections_check_box_state_changed)
         self.show_erroneous_check_box.stateChanged.connect(self.__on_show_erroneous_check_box_state_changed)
@@ -114,19 +129,100 @@ class TreeWidget(QWidget):
 
         self.item_tree_view.customContextMenuRequested.connect(self.__contextual_menu)
 
-        self.load_config_push_button.clicked.connect(self.__on_load_config_push_button_clicked)
+        self.load_spec_push_button.clicked.connect(self.__on_load_spec_push_button_clicked)
         self.recording_push_button.clicked.connect(self.__on_recording_push_button_clicked)
+        
+        ### CARSON ADDED ###
+        self.start_spec_push_button.clicked.connect(self.__on_start_spec_push_button_clicked)
+        self.start_counter_push_button.clicked.connect(self.__on_start_counter_push_button_clicked)
+        self.load_counter_push_button.clicked.connect(self.__on_load_counter_push_button_clicked)
+        ### ###
 
-    def __on_load_config_push_button_clicked(self):
+    ### PETE ADDED ###
+    def __on_load_spec_push_button_clicked(self):
+        """Called whenever the Load Specification button is clicked.
+        Opens a file picker, then loads that file into rosparams and forces a reload by the specification node.
+        """
+        # if self._spec_process is None:
+        #     QMessageBox.warning(self, "Warning", "The Specifications node is not running. Please start it before "
+        #                             "loading specifications. Aborting.")
+        #     return
+            
         filename = QFileDialog.getOpenFileName(self)
 
-        output = os.system("rosparam load " + filename[0])
-        # original format line below:
-        # output = os.system("rosparam load " + filename[0] + " /arni/specifications/rqt_arni_loaded" + str(self.loaded_specs))
-        os.system("rosservice call /monitoring_node/reload_specifications")
-        print("If there just popped up an error message, please make sure the processing node is running / "
-              "running correctly.")
-        self.loaded_specs += 1
+        if filename[0] != '':
+            output = os.system("rosparam load " + filename[0])
+            # original format line below:
+            # output = os.system("rosparam load " + filename[0] + " /arni/specifications/rqt_arni_loaded" + str(self.loaded_specs))
+            os.system("rosservice call /monitoring_node/reload_specifications")
+            print("If there just popped up an error message, please make sure the processing node is running / "
+                "running correctly.")
+            self.loaded_specs += 1
+    ### ###
+        
+    ### CARSON ADDED ###
+    def __on_load_counter_push_button_clicked(self):
+        """Called whenever the Load Countermeasure button is clicked.
+        Opens a file picker, then loads that file into rosparams and forces a reload by the countermeasure node.
+        """
+        # if self._counter_process is None:
+        #     QMessageBox.warning(self, "Warning", "The Countermeasures node is not running. Please start it before "
+        #                             "loading countermeasures. Aborting.")
+        #     return
+        
+        filename = QFileDialog.getOpenFileName(self)
+
+        if filename[0] != '':
+            output = os.system("rosparam load " + filename[0])
+            os.system("rosservice call /countermeasure/reload_constraints")
+            print("If there just popped up an error message, please make sure the processing node is running / "
+                "running correctly.")
+                
+    def __on_start_spec_push_button_clicked(self):
+        """Called whenever the Start/Stop Specifications button is clicked.
+        Starts the Specifications node if none is running, or stops the currently running one.
+        """
+        if self._spec_process is None:
+            self._spec_process = subprocess.Popen(['rosrun', 'arni_processing', 'arni_processing'], 
+                                                    stdout=open(os.devnull, 'wb'), stderr=open(os.devnull, 'wb'))
+            # print(self._spec_process.pid)
+            self.start_spec_push_button.setText('Stop Specifications')
+            self.load_spec_push_button.setEnabled(True)
+        else:
+            self._spec_process.send_signal(signal.SIGINT)
+            self._spec_process.wait()
+            self._spec_process = None
+            self.start_spec_push_button.setText('Start Specifications')
+            self.load_spec_push_button.setEnabled(False)
+            
+    def __on_start_counter_push_button_clicked(self):
+        """Called whenever the Start/Stop Countermeasures button is clicked.
+        Starts the Countermeasures node if none is running, or stops the currently running one.
+        """
+        if self._counter_process is None:
+            self._counter_process = subprocess.Popen(['rosrun', 'arni_countermeasure', 'arni_countermeasure'], 
+                                                        stdout=open(os.devnull, 'wb'), stderr=open(os.devnull, 'wb'))
+            # print(self._counter_process.pid)
+            self.start_counter_push_button.setText('Stop Countermeasures')
+            self.load_counter_push_button.setEnabled(True)
+        else:
+            self._counter_process.send_signal(signal.SIGINT)
+            self._counter_process.wait()
+            self._counter_process = None
+            self.start_counter_push_button.setText('Start Countermeasures')
+            self.load_counter_push_button.setEnabled(False)
+        
+    def _cleanup(self):
+        """Cleans up the specifications and countermeasure processes on exit.
+        This function is registered with atexit on widget creation.
+        """
+        if self._spec_process is not None:
+            self._spec_process.send_signal(signal.SIGINT)
+            self._spec_process.wait()
+        if self._counter_process is not None:
+            self._counter_process.send_signal(signal.SIGINT)
+            self._counter_process.wait()
+    ### ###
 
     def __on_recording_push_button_clicked(self):
         storage = []
@@ -252,6 +348,14 @@ class TreeWidget(QWidget):
                 self.show_connections_check_box.click()
             if self.also_show_subscribers_check_box.checkState():
                 self.also_show_subscriber_check_box.click()
+
+    ## CARSON ADDED
+    def __on_hide_throttles_check_box_state_changed(self, activated):
+        if activated is 2:
+            self.__filter_proxy.hide_throttles(True)
+        else:
+            self.__filter_proxy.hide_throttles(False)
+    ##
 
     def __on_hide_debug_check_box_state_changed(self, activated):
         """
