@@ -18,7 +18,8 @@ from rosthrottle import MessageThrottle, BandwidthThrottle
 from arni_gui.ros_model import ROSModel
 from arni_gui.log_filter_proxy import LogFilterProxy
 from arni_gui.log_delegate import LogDelegate
-from arni_gui.helper_functions import ResizeableGraphicsLayoutWidget, DateAxis, kb_to_bytes, bytes_to_kb
+from arni_gui.helper_functions import ResizeableGraphicsLayoutWidget, DateAxis,\
+    kb_to_bytes, bytes_to_kb, bytes_to_mb
 
 try:
     import pyqtgraph as pg
@@ -26,30 +27,33 @@ except ImportError as e:
     print("An error occured trying to import pyqtgraph. Please install pyqtgraph via \"pip install pyqtgraph\".")
     raise
 
-### CARSON ADDED ###
+# CARSON ADDED #
 # dpi values to enable floating point values on throttle sliders
 THROTTLE_RATE_SLIDER_DPI = 10.0
 THROTTLE_WINDOW_SLIDER_DPI = 100.0
-    
+
+
 def convert_from_slider(val, dpi):
     """Converts a value from the slider to its true value.
-    
+
     Args:
         val (int, float): value to convert
         dpi (int, float): dpi to use for conversion
     """
     return val / float(dpi)
 
+
 def convert_to_slider(val, dpi):
     """Converts a value to its respective slider value.
-    
+
     Args:
         val (int, float): value to convert
         dpi (int, float): dpi to use for conversion
     """
     return val * float(dpi)
-    
-# mousePressEvent and mouseMoveEvent are used to override the default QSlider 
+
+
+# mousePressEvent and mouseMoveEvent are used to override the default QSlider
 # mouse handling to allow for clicking onto desired values and tick mark snapping
 # found here: https://stackoverflow.com/a/29639127
 def mousePressEvent(self, ev):
@@ -124,11 +128,11 @@ class SelectionWidget(QWidget):
         self.log_tab_tree_view.setItemDelegate(self.__log_delegate)
 
         self.__style_string = ".detailed_data {\n" \
-                               "    font-size: 12\n;" \
-                               "}\n"
+                              "    font-size: 12\n;" \
+                              "}\n"
         self.__style_string = ".erroneous_entry {\n" \
-                               "    color: red\n;" \
-                               "}\n"
+                              "    color: red\n;" \
+                              "}\n"
 
         self.information_tab_text_browser.setStyleSheet(self.__style_string)
 

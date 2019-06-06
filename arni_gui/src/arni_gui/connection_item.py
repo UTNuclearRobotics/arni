@@ -4,7 +4,8 @@ from rospy.rostime import Time, Duration
 from python_qt_binding.QtCore import QTranslator
 
 from abstract_item import AbstractItem
-from helper_functions import prepare_number_for_representation, bytes_to_kb, MAXIMUM_OFFLINE_TIME, ROUND_DIGITS
+from helper_functions import prepare_number_for_representation, bytes_to_kb, \
+    MAXIMUM_OFFLINE_TIME, ROUND_DIGITS
 
 
 class ConnectionItem(AbstractItem):
@@ -15,7 +16,7 @@ class ConnectionItem(AbstractItem):
     def __init__(self, logger, seuid, first_message, parent=None):
         """
         Initializes the ConnectionItem.
-        
+
         :param seuid: the seuid of the item
         :type seuid: str
         :param logger: a logger where to log when special events occur
@@ -65,8 +66,7 @@ class ConnectionItem(AbstractItem):
         for key in self._attributes:
             values[key] = 0
 
-        entries = self.get_items_younger_than(Time.now() - (Duration(secs=period) if int(Duration(secs=period).to_sec()) <= int(Time.now().to_sec()) else Time(0) ))
-
+        entries = self.get_items_younger_than(Time.now() - (Duration(secs=period) if int(Duration(secs=period).to_sec()) <= int(Time.now().to_sec()) else Time(0)))
 
         length = len(entries["window_stop"]) if entries["window_stop"] else 0
 
@@ -119,24 +119,24 @@ class ConnectionItem(AbstractItem):
 
         if "frequency" in self._attributes:
             content += self.tr("frequency") + ": " + prepare_number_for_representation(data_dict["frequency"]) \
-                       + " " + self.tr("frequency_unit") + " <br>"
+                + " " + self.tr("frequency_unit") + " <br>"
 
         content += self.tr("dropped_msgs") + ": " + prepare_number_for_representation(data_dict["dropped_msgs"]) + " " \
-                + self.tr("dropped_msgs_unit") + " <br>"
+            + self.tr("dropped_msgs_unit") + " <br>"
         content += self.tr("bandwidth") + ": " + prepare_number_for_representation(bytes_to_kb(data_dict["bandwidth"])) + " " \
-                + " " + self.tr("bandwidth_unit") + " <br>"
+            + " " + self.tr("bandwidth_unit") + " <br>"
         content += self.tr("period_mean") + ": " + prepare_number_for_representation(data_dict["period_mean"]) \
-                + " " + self.tr("period_mean_unit") + " <br>"
+            + " " + self.tr("period_mean_unit") + " <br>"
         content += self.tr("period_stddev") + ": " + prepare_number_for_representation(data_dict["period_stddev"]) \
-                + " " + self.tr("period_stddev_unit") + " <br>"
+            + " " + self.tr("period_stddev_unit") + " <br>"
         content += self.tr("period_max") + ": " + prepare_number_for_representation(data_dict["period_max"]) + " " \
-                + self.tr("period_max_unit") + " <br>"
+            + self.tr("period_max_unit") + " <br>"
         content += self.tr("stamp_age_mean") + ": " + prepare_number_for_representation(data_dict["stamp_age_mean"]) \
-                + " " + self.tr("stamp_age_mean_unit") + " <br>"
+            + " " + self.tr("stamp_age_mean_unit") + " <br>"
         content += self.tr("stamp_age_stddev") + ": " + prepare_number_for_representation(data_dict["stamp_age_stddev"]) \
-                + " " + self.tr("stamp_age_stddev_unit") + " <br>"
+            + " " + self.tr("stamp_age_stddev_unit") + " <br>"
         content += self.tr("stamp_age_max") + ": " + prepare_number_for_representation(data_dict["stamp_age_max"]) \
-                + " " + self.tr("stamp_age_max_unit") + " <br>"
+            + " " + self.tr("stamp_age_max_unit") + " <br>"
         content += "</p>"
 
         return content
@@ -144,17 +144,16 @@ class ConnectionItem(AbstractItem):
     def get_plotable_items(self):
         """
         Returns items for the plot.
-        
+
         :returns: str[]
         """
         return ["dropped_msgs", "bandwidth", "frequency", "period_mean", "period_stddev", "period_max", "stamp_age_mean",
                 "stamp_age_stddev", "stamp_age_max"]
 
-
     def get_short_data(self):
         """
         Returns a shortend version of the item data.
-        
+
         :returns: data of the item
         :rtype: str
         """
@@ -167,16 +166,18 @@ class ConnectionItem(AbstractItem):
                    + " seconds"
 
         content = ""
-        if data_dict["state"] is "error":
+        if data_dict["state"] == "error":
             content += self.get_erroneous_entries_for_log()
         else:
-            content += self.tr("frequency") + ": " + prepare_number_for_representation(data_dict["frequency"]) \
-                       + " " + self.tr("frequency_unit") + "  - "
-            content += self.tr("bandwidth") + ": " + prepare_number_for_representation(
-                bytes_to_kb(data_dict["bandwidth"])) + " " \
-                       + self.tr("bandwidth_unit") + " - "
-            content += self.tr("dropped_msgs") + ": " + prepare_number_for_representation(data_dict["dropped_msgs"]) \
-                       + " " + self.tr("dropped_msgs_unit")
+            content += "      -----      |      ----      |"
+            content += '{0: ^12}'.format('{0:0>4}'.format(
+                prepare_number_for_representation(data_dict["frequency"])) + " "
+                + self.tr("frequency_unit")) + "|"
+            content += '{0: ^18}'.format('{0:0>4}'.format(
+                prepare_number_for_representation(bytes_to_kb(data_dict["bandwidth"])))
+                + " " + self.tr("bandwidth_unit")) + "|"
+            content += self.tr("dropped_msgs") + ":" \
+                + prepare_number_for_representation(data_dict["dropped_msgs"]) + " " + self.tr("dropped_msgs_unit")
 
         return content
 

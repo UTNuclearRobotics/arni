@@ -406,7 +406,7 @@ class TopicItem(AbstractItem):
         data_dict["state"] = self.get_state()
 
         try:
-            if type(data_dict["window_stop"]) == type(1):
+            if isinstance(data_dict["window_stop"], int):
                 data_dict["window_stop"] = Time(data_dict["window_stop"])
             if data_dict["window_stop"] == Time(0):
                 return "No data yet"
@@ -420,14 +420,15 @@ class TopicItem(AbstractItem):
             print(e)
             raise UserWarning
 
-        content = "      -----      |      ----      |"
+        content = ""
         if data_dict["state"] == "error":
             content += self.get_erroneous_entries_for_log()
         else:
+            content += "      -----      |      ----      |"
             content += '{0: ^12}'.format('{0:0>4}'.format(
                 prepare_number_for_representation(data_dict["frequency"])) + " "
                 + self.tr("frequency_unit")) + "|"
-            content += '{0: ^20}'.format('{0:0>6}'.format(
+            content += '{0: ^18}'.format('{0:0>4}'.format(
                 prepare_number_for_representation(bytes_to_kb(data_dict["bandwidth"])))
                 + " " + self.tr("bandwidth_unit")) + "|"
             content += self.tr("dropped_msgs") + ":" \

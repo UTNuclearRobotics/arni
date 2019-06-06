@@ -10,7 +10,8 @@ from arni_core.host_lookup import HostLookup
 from arni_core.helper import SEUID
 import arni_core.helper as helper
 from arni_msgs.srv import NodeReaction
-from helper_functions import prepare_number_for_representation, MAXIMUM_OFFLINE_TIME, ROUND_DIGITS
+from helper_functions import prepare_number_for_representation, bytes_to_kb,\
+    MAXIMUM_OFFLINE_TIME, ROUND_DIGITS
 
 TIME_OUT = 25
 
@@ -227,9 +228,9 @@ class NodeItem(AbstractItem):
             content += '{0: ^12}'.format('{0:0>4}'.format(
                 prepare_number_for_representation(data_dict["node_message_frequency_mean"]))
                 + " " + self.tr("node_message_frequency_mean_unit")) + "|"
-            content += '{0: ^20}'.format('{0:0>6}'.format(
-                prepare_number_for_representation(data_dict["node_bandwidth_mean"]))
-                + " " + self.tr("node_bandwidth_mean_unit"))
+            content += '{0: ^18}'.format('{0:0>4}'.format(
+                prepare_number_for_representation(bytes_to_kb(data_dict["node_bandwidth_mean"])))
+                + " " + self.tr("node_bandwidth_mean_unit")) + "|"
 
         return content
 

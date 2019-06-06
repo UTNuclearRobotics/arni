@@ -56,6 +56,14 @@ The amount of digits to which the GUI typically rounds. Might not be used everyw
 """
 ROUND_DIGITS = 2
 
+"""
+Defines threshold values for critical CPU resource usage
+"""
+CPU_USAGE_CRITICAL = 50
+CPU_USAGE_WARNING = 25
+CPU_USAGE_CRITICAL_COLOR = QColor(255, 128, 86)
+CPU_USAGE_WARNING_COLOR = QColor(255, 238, 86)
+
 try:
     import pyqtgraph as pg
 except ImportError as e:
@@ -113,6 +121,7 @@ def choose_brush(index):
     :param index: the index of the item
     :type index: QModelIndex
     """
+
     if index.data() == "ok":
         return QColor(127, 255, 0)
     elif index.data() == "warning":
@@ -124,6 +133,17 @@ def choose_brush(index):
         temp = index.model().mapToSource(index)
         if temp.internalPointer().topic_item.throttle is not None:
             return QColor(0, 255, 255)
+    #
+    # Colorize high resource usage [PETE]
+    tmp = index.data().lstrip()[0:3]
+
+    if tmp.isdigit() is True:
+        cpu_percent = int(tmp)
+
+        if cpu_percent >= CPU_USAGE_CRITICAL:
+            return CPU_USAGE_CRITICAL_COLOR
+        elif cpu_percent >= CPU_USAGE_WARNING:
+            return CPU_USAGE_WARNING_COLOR
     #
 
     return QColor(255, 255, 255)
@@ -213,3 +233,13 @@ def bytes_to_kb(val):
     """
     return val / 1000
 ##
+
+
+def bytes_to_mb(val):
+    """Converts a value in bytes to one in megabytes
+
+    Args:
+        val (int): value in bytes
+    """
+
+    return val / 1000000

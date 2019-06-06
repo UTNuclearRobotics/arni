@@ -210,7 +210,7 @@ class ROSModel(QAbstractItemModel):
             elif section == 2:
                 return " " + self.tr('State')
             elif section == 3:
-                return " " + " Avg. CPU | Avg. RAM | Msg. Freq |      Bandwidth      | Other"
+                return " " + " Avg. CPU | Avg. RAM | Msg. Freq |    Bandwidth    | Other"
         return None
 
     def index(self, row, column, parent):
